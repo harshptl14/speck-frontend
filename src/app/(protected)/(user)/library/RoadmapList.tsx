@@ -5,6 +5,8 @@ import {
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
+import Link from "next/link";
+
 const getMyRoadmaps = async () => {
   const authorization = cookies().get("jwtToken")?.value;
 
@@ -27,19 +29,38 @@ const getMyRoadmaps = async () => {
 
 const RoadmapList = async () => {
   const myroadmaps = await getMyRoadmaps();
-  console.log(myroadmaps);
+  console.log(
+    "roadmap length in the roadmap list",
+    myroadmaps?.roadmaps?.length,
+    typeof myroadmaps?.roadmaps?.length
+  );
 
   return (
     <div>
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
-        {myroadmaps?.roadmaps?.map((roadmap: any) => (
-          <Card key={roadmap.id}>
-            <CardHeader>
-              <CardTitle>{roadmap?.name}</CardTitle>
-              <CardDescription>{roadmap?.description}</CardDescription>
-            </CardHeader>
-          </Card>
-        ))}
+        {myroadmaps?.roadmaps?.length !== 0 ? (
+          myroadmaps?.roadmaps?.map((roadmap: any) => (
+            <Link href={`/library/${roadmap.id}`}>
+              <Card key={roadmap.id}>
+                <CardHeader>
+                  <CardTitle>{roadmap?.name}</CardTitle>
+                  <CardDescription>{roadmap?.description}</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+            // <Card
+            //   key={roadmap.id}
+            //   onClick={() => (window.location.href = `/${roadmap.id}`)}
+            // >
+            //   <CardHeader>
+            //     <CardTitle>{roadmap?.name}</CardTitle>
+            //     <CardDescription>{roadmap?.description}</CardDescription>
+            //   </CardHeader>
+            // </Card>
+          ))
+        ) : (
+          <div>No roadmaps found</div>
+        )}
       </div>
     </div>
   );
