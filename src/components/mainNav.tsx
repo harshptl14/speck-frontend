@@ -51,7 +51,7 @@ export interface NavProps {
 export default function MainNav({ items }: NavProps) {
   const path = usePathname();
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+    <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 sticky top-0 backdrop-blur-xl">
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden">
@@ -110,9 +110,9 @@ export default function MainNav({ items }: NavProps) {
             })}
           </nav>
           <div className="mt-auto">
-            <Card>
+            {/* <Card>
               <CardHeader>
-                <CardTitle>Upgrade to Pro</CardTitle>
+                <CardTitle>Create a new roadmap</CardTitle>
                 <CardDescription>
                   Unlock all features and get unlimited access to our support
                   team.
@@ -120,10 +120,13 @@ export default function MainNav({ items }: NavProps) {
               </CardHeader>
               <CardContent>
                 <Button size="sm" className="w-full">
-                  Upgrade
+                  Create
                 </Button>
               </CardContent>
-            </Card>
+            </Card> */}
+            <Button size="sm" className="w-full">
+              <Link href="/create">Create Roadmap</Link>
+            </Button>
           </div>
         </SheetContent>
       </Sheet>
