@@ -16,6 +16,7 @@ import { usePathname } from "next/navigation";
 import { SideNavItem } from "@/types";
 import { cn } from "@/lib/utils";
 import { Icons } from "./icon";
+import AppIcon from "./appIcon";
 export interface SidebarNavProps {
   items: SideNavItem[];
 }
@@ -28,8 +29,8 @@ export default function SideNav({ items }: SidebarNavProps) {
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Package2 className="h-6 w-6" />
-              <span className="">Speck</span>
+              <AppIcon className="h-9 w-9" />
+              <span className="text-lg">Speck</span>
             </Link>
             <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
               <Bell className="h-4 w-4" />
