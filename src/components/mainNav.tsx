@@ -1,34 +1,11 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/xYHqD5MkVkT
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
-
 "use client";
 
 import Link from "next/link";
 
-import {
-  CircleUser,
-  Home,
-  LineChart,
-  Menu,
-  Package,
-  Package2,
-  Search,
-  ShoppingCart,
-  Users,
-} from "lucide-react";
+import { CircleUser, Menu, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,6 +20,7 @@ import { NavItem, SideNavItem } from "@/types";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Icons } from "./icon";
+import AppIcon from "./appIcon";
 
 export interface NavProps {
   items: SideNavItem[];
@@ -65,7 +43,7 @@ export default function MainNav({ items }: NavProps) {
               href="#"
               className="flex items-center gap-2 text-lg font-semibold"
             >
-              <Package2 className="h-6 w-6" />
+              <AppIcon className="h-9 w-9" />
               <span className="sr-only">Speck</span>
             </Link>
             {items.map((item, index) => {

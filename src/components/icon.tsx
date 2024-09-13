@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  ChevronDown,
   LibraryBig,
   LayoutTemplate,
   Home,
@@ -32,6 +33,7 @@ import {
 export type Icon = typeof LucideIcon;
 
 export const Icons = {
+  chevronDown: ChevronDown,
   home: Home,
   library: LibraryBig,
   template: LayoutTemplate,
