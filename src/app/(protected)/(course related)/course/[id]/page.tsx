@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import SideNav from "@/components/sideNav";
 import MainNav from "@/components/mainNav";
+import TabsComponent from "@/components/tabsComponent";
 
 const getMyRoadmap = async (id: string) => {
   const authorization = cookies().get("jwtToken")?.value;
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_API}/speck/v1/roadmap/getById/${id}`,
+      `${process.env.NEXT_PUBLIC_API}/speck/v1/roadmap/getById/${id}`,
       {
         headers: {
           Authorization: `Bearer ${authorization}`,
@@ -134,7 +135,7 @@ export default async function RoadmapPage({
             <Button>Start Learning</Button>
           </Link>
           <div className="mb-5"></div>
-          <MarkdownRenderer markdown={myroadmap?.data?.roadmap?.markdown} />
+          <TabsComponent markdown={myroadmap?.data?.roadmap?.markdown} ></TabsComponent>
         </main>
       </div>
     </div>
