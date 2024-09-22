@@ -12,13 +12,15 @@ const getMyRoadmap = async (id: string) => {
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/speck/v1/roadmap/getById/${id}`,
+      `${process.env.NEXT_PUBLIC_SERVER_API}/speck/v1/roadmap/getById/${id}`,
       {
         headers: {
           Authorization: `Bearer ${authorization}`,
         },
       }
     );
+
+    console.log("response in the getMyRoadmap fun:", response);
 
     return response.json();
   } catch (error) {
@@ -135,7 +137,9 @@ export default async function RoadmapPage({
             <Button>Start Learning</Button>
           </Link>
           <div className="mb-5"></div>
-          <TabsComponent markdown={myroadmap?.data?.roadmap?.markdown} ></TabsComponent>
+          <TabsComponent
+            markdown={myroadmap?.data?.roadmap?.markdown}
+          ></TabsComponent>
         </main>
       </div>
     </div>
