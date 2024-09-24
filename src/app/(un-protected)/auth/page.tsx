@@ -55,7 +55,7 @@ const AuthPage = () => {
         </CardHeader>
         <CardContent className="flex grow flex-col justify-center">
           <Button variant="default" size="default">
-            <a href="http://localhost:4000/speck/v1/auth/google">
+            <a href="http://localhost:3001/speck/v1/auth/google">
               Sign in with Google
             </a>
           </Button>
