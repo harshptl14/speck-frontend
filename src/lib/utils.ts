@@ -16,3 +16,10 @@ export function getClientSideCookie(cookieName: string): string | null {
   }
   return null;
 }
+
+export const getAuthorizationToken = (): string | undefined => {
+  return document?.cookie
+    ?.split(";")
+    .find((cookie) => cookie.includes("jwtToken"))
+    ?.split("=")[1];
+};
