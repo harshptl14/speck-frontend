@@ -22,7 +22,7 @@ const handleCreate = async (
   // For example:
   axios
     .post(
-      `${process.env.NEXT_PUBLIC_API}/speck/v1/roadmap/create`,
+      `${process.env.NEXT_PUBLIC_SERVER_API}/speck/v1/roadmap/create`,
       {
         prompt: inputValue,
       },

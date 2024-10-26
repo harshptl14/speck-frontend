@@ -173,7 +173,7 @@ export default function MainNav(props: NavProps) {
           <DropdownMenuItem>Support</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <a href={process.env.NEXT_PUBLIC_API + "/speck/v1/auth/logout"}>
+            <a href={process.env.NEXT_PUBLIC_SERVER_API + "/speck/v1/auth/logout"}>
               Logout
             </a>
           </DropdownMenuItem>
