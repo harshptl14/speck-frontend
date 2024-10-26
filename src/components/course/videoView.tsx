@@ -46,7 +46,11 @@ const VideoView: React.FC<VideoViewProps> = ({ videoData }) => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold mb-6">Video Gallery</h2>
+      <h2 className="mb-4 text-2xl font-semibold">
+        {videoData[0]?.videoType == "SHORTS"
+          ? "YouTube Shorts"
+          : "YouTube Videos"}
+      </h2>
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {videoData.slice(0, 3).map((video) => (
           <VideoCard

@@ -84,6 +84,16 @@ export default async function RoadmapPage({
             },
           ]}
           key={1}
+          breadcrumbs={[
+            {
+              href: "/library",
+              title: "Library",
+            },
+            {
+              href: ``,
+              title: myroadmap?.data?.roadmap?.name,
+            },
+          ]}
         />
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
           <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl border-b pb-5 mb-3">

@@ -14,7 +14,7 @@ interface LinkViewProps {
 const LinkView: React.FC<LinkViewProps> = ({ linkData }) => {
   return (
     <div>
-      <h2 className="mb-4 mt-8 text-2xl font-semibold">Helpful Resources</h2>
+      <h2 className="mb-4 text-2xl font-semibold">Helpful Resources</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         {linkData.map((link, index) => (
           <Card key={index}>
