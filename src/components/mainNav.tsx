@@ -21,12 +21,21 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Icons } from "./icon";
 import AppIcon from "./appIcon";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "./ui/breadcrumb";
 
 export interface NavProps {
   items: SideNavItem[];
+  key: number;
+  breadcrumbs?: { title: string; href: string }[];
 }
 
-export default function MainNav({ items }: NavProps) {
+export default function MainNav(props: NavProps) {
   const path = usePathname();
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 sticky top-0 backdrop-blur-xl">
@@ -46,7 +55,7 @@ export default function MainNav({ items }: NavProps) {
               <AppIcon className="h-9 w-9" />
               <span className="sr-only">Speck</span>
             </Link>
-            {items.map((item, index) => {
+            {props?.items.map((item, index) => {
               const Icon = Icons[item.icon || "arrowRight"];
               return (
                 item.href && (
@@ -109,16 +118,44 @@ export default function MainNav({ items }: NavProps) {
         </SheetContent>
       </Sheet>
       <div className="w-full flex-1">
-        <form>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search products..."
-              className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-            />
-          </div>
-        </form>
+        {props.breadcrumbs ? (
+          <Breadcrumb>
+            <BreadcrumbList>
+              {props.breadcrumbs.map((breadcrumb, index) => (
+                <>
+                  <BreadcrumbItem key={index}>
+                    {breadcrumb.href ? (
+                      <BreadcrumbLink
+                        href={breadcrumb.href}
+                        className="text-muted-foreground"
+                      >
+                        {breadcrumb.title}
+                      </BreadcrumbLink>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {breadcrumb.title}
+                      </span>
+                    )}
+                  </BreadcrumbItem>
+                  {index < (props.breadcrumbs?.length ?? 0) - 1 && (
+                    <BreadcrumbSeparator />
+                  )}
+                </>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
+        ) : (
+          <form>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search products..."
+                className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
+              />
+            </div>
+          </form>
+        )}
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
