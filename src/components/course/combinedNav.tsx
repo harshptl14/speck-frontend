@@ -33,6 +33,7 @@ type CourseData = {
 };
 
 import * as React from "react";
+import { useState } from "react";
 import { useCallback } from "react";
 import {
   Activity,
@@ -83,7 +84,6 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Progress } from "@radix-ui/react-progress";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Dialog, DialogContent } from "../ui/dialog";
 
 interface CombinedNavProps {
@@ -97,32 +97,48 @@ interface CombinedNavProps {
     subtopicId: number,
     newStatus: ProgressStatus
   ) => Promise<{ success: boolean }>;
+  createFavorite: (
+    roadmapId: number
+  ) => Promise<{ success: boolean; message: string }>;
+  removeFavorite: (
+    roadmapId: number
+  ) => Promise<{ success: boolean; message: string }>;
+  resetRoadmapProgress: (
+    roadmapId: string,
+    currentSubTopic: string
+  ) => Promise<{ success: boolean; message: string }>;
+  isFavorite: boolean;
 }
-
-const actions: { label: string; icon: LucideIcon; action: () => void }[][] = [
-  [
-    {
-      label: "Your Progress",
-      icon: Activity,
-      action: () => {},
-    },
-    {
-      label: "Reset Progress",
-      icon: RotateCcw,
-      action: () => {},
-    },
-  ],
-];
 
 export function CombinedNav({
   roadmapId,
   currentSubTopic,
   courseData,
   children,
+  createFavorite,
+  removeFavorite,
   updateSubtopicProgress,
+  resetRoadmapProgress,
+  isFavorite,
 }: CombinedNavProps) {
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [isProgressOpen, setIsProgressOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isProgressOpen, setIsProgressOpen] = useState(false);
+
+  const actions: { label: string; icon: LucideIcon; action: () => void }[][] = [
+    [
+      {
+        label: "Your Progress",
+        icon: Activity,
+        action: () => {},
+      },
+      {
+        label: "Reset Progress",
+        icon: RotateCcw,
+        action: () => {},
+        // resetRoadmapProgress(roadmapId, currentSubTopic as string),
+      },
+    ],
+  ];
 
   const handleSubtopicProgressChange = useCallback(
     async (
@@ -269,6 +285,12 @@ export function CombinedNav({
           <NavActions
             actions={actions}
             onProgressOpen={() => setIsProgressOpen(true)}
+            createFavorite={createFavorite}
+            removeFavorite={removeFavorite}
+            resetRoadmapProgress={resetRoadmapProgress}
+            initialIsFavorite={isFavorite}
+            roadmapId={roadmapId}
+            subtopicId={currentSubTopic as string}
           />
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4">
@@ -394,6 +416,12 @@ export default function YourProgress({
 function NavActions({
   actions,
   onProgressOpen,
+  resetRoadmapProgress,
+  createFavorite,
+  removeFavorite,
+  initialIsFavorite,
+  roadmapId,
+  subtopicId,
 }: {
   actions: {
     label: string;
@@ -401,8 +429,40 @@ function NavActions({
     action: () => void;
   }[][];
   onProgressOpen: () => void;
+  resetRoadmapProgress: (
+    roadmapId: string,
+    currentSubTopic: string
+  ) => Promise<{ success: boolean; message: string }>;
+  createFavorite: (
+    roadmapId: number
+  ) => Promise<{ success: boolean; message: string }>;
+  removeFavorite: (
+    roadmapId: number
+  ) => Promise<{ success: boolean; message: string }>;
+  initialIsFavorite: boolean;
+  roadmapId: string;
+  subtopicId: string;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleFavoriteToggle = async () => {
+    setIsLoading(true);
+    try {
+      if (isFavorite) {
+        await removeFavorite(Number(roadmapId));
+        setIsFavorite(false);
+      } else {
+        await createFavorite(Number(roadmapId));
+        setIsFavorite(true);
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // React.useEffect(() => {
   //   setIsOpen(true);
@@ -413,8 +473,14 @@ function NavActions({
       {/* <div className="hidden font-medium text-muted-foreground md:inline-block">
         Edit Oct 08
       </div> */}
-      <Button variant="ghost" size="icon" className="h-7 w-7">
-        <Star />
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7"
+        onClick={handleFavoriteToggle}
+        disabled={isLoading}
+      >
+        <Star className={isFavorite ? "text-primary fill-primary" : ""} />
       </Button>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
@@ -442,6 +508,9 @@ function NavActions({
                             onClick={() => {
                               if (item.label === "Your Progress") {
                                 onProgressOpen();
+                              }
+                              if (item.label === "Reset Progress") {
+                                resetRoadmapProgress(roadmapId, subtopicId);
                               } else {
                                 item.action();
                               }
