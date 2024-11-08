@@ -1,113 +1,203 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import axios from "axios";
-import Link from "next/link";
-import React, { useState } from "react";
+import { useState, useEffect } from 'react'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Progress } from "@/components/ui/progress"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { CheckCircle, Loader2, Info } from 'lucide-react'
+import confetti from 'canvas-confetti'
+import { io, Socket } from 'socket.io-client'
 
-const handleCreate = async (
-  inputValue: string,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setResponseMessage: React.Dispatch<React.SetStateAction<string>>
-) => {
-  console.log("inputValue ---------------", inputValue);
+interface RoadmapStage {
+  progress: number
+  message: string
+}
 
-  setLoading(true);
-  const authorization = document?.cookie
-    ?.split(";")
-    .find((cookie) => cookie.includes("jwtToken"))
-    ?.split("=")[1];
-  // Make your API call here using the input value
-  // For example:
-  axios
-    .post(
-      `${process.env.NEXT_PUBLIC_API}/speck/v1/roadmap/create`,
-      {
-        prompt: inputValue,
+export default function RoadmapCreator() {
+  const [goal, setGoal] = useState('')
+  const [isCreating, setIsCreating] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [currentStage, setCurrentStage] = useState(0)
+  const [socket, setSocket] = useState<Socket | null>(null)
+
+  const stages = [
+    {
+      name: 'Starting roadmap creation',
+      tooltip: 'Initializing the roadmap creation process',
+      threshold: 0
+    },
+    {
+      name: 'Checking existing roadmaps',
+      tooltip: 'Comparing your goals with existing roadmaps',
+      threshold: 10
+    },
+    {
+      name: 'Generating roadmap structure',
+      tooltip: 'Creating a personalized learning path',
+      threshold: 20
+    },
+    {
+      name: 'Converting roadmap to Markdown',
+      tooltip: 'Formatting your roadmap for easy reading',
+      threshold: 30
+    },
+    {
+      name: 'Generating course information',
+      tooltip: 'Gathering relevant course details',
+      threshold: 40
+    },
+    {
+      name: 'Generating course name',
+      tooltip: 'Creating a unique name for your learning journey',
+      threshold: 50
+    },
+    {
+      name: 'Saving roadmap to database',
+      tooltip: 'Securely storing your personalized roadmap',
+      threshold: 70
+    },
+    {
+      name: 'Populating initial content',
+      tooltip: 'Adding starter content to your roadmap',
+      threshold: 75
+    },
+    {
+      name: 'Roadmap creation complete',
+      tooltip: 'Your personalized learning path is ready!',
+      threshold: 100
+    }
+  ]
+
+  useEffect(() => {
+    if (progress === 100) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      })
+    }
+  }, [progress])
+
+  const handleCreate = () => {
+    if (!goal.trim() || isCreating) return;
+
+    setIsCreating(true)
+    const authorization = document?.cookie
+      ?.split(";")
+      .find((cookie) => cookie.includes("jwtToken"))
+      ?.split("=")[1];
+
+    const token = `Bearer ${authorization}`
+    const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_API, {
+      auth: {
+        token: token,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${authorization}`,
-        },
-      }
-    )
-    .then((response) => {
-      // Handle the API response data
-      console.log(response.data);
-      setResponseMessage(response.data.message); // Set the response message
     })
-    .catch((error) => {
-      // Handle any errors
-      // Handle any errors
-      console.error(error);
-      // Inform the user about the error
-      let errorMessage =
-        "An unexpected error occurred. Please try again later.";
-      if (error.response && error.response.status === 500) {
-        errorMessage =
-          "Server error: We are currently experiencing issues. Please try again later.";
-      } else if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        errorMessage = error.response.data.message;
-      }
-      // Set the error message to be displayed to the user
-      setResponseMessage(errorMessage);
+
+    setSocket(newSocket)
+
+    newSocket.emit('createRoadmap', { prompt: goal })
+
+    newSocket.on('roadmapProgress', (data: RoadmapStage) => {
+      setProgress(data.progress)
+      const currentStageIndex = stages.findLastIndex(
+        (stage, index) =>
+          data.progress >= stage.threshold &&
+          (index === stages.length - 1 || data.progress < stages[index + 1].threshold)
+      )
+      setCurrentStage(currentStageIndex)
     })
-    .finally(() => {
-      setLoading(false);
-    });
-};
 
-const UserInput = () => {
-  const [inputValue, setInputValue] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [responseMessage, setResponseMessage] = useState(""); // State variable for response message
+    newSocket.on('roadmapComplete', (data: { message: string }) => {
+      console.log(data.message)
+      setProgress(100)
+      setIsCreating(false)
+      newSocket.disconnect()
+    })
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
-  };
+    newSocket.on('roadmapError', (data: { message: string }) => {
+      console.error('Error:', data.message)
+      setIsCreating(false)
+      newSocket.disconnect()
+    })
+
+    return () => {
+      if (newSocket) newSocket.disconnect()
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleCreate()
+    }
+  }
 
   return (
-    <div>
-      {responseMessage ? (
-        <div className="flex flex-col items-center gap-1 text-center">
-          {responseMessage}
-          <Button>
-            <Link href="/library">Visit library</Link>
-          </Button>
-        </div>
-      ) : (
-        <div>
-          <h3 className="text-2xl font-bold tracking-tight">
-            What do you want to learn?
-          </h3>
-          <p className="text-sm text-muted-foreground text-wrap max-w-md">
-            Write a prompt which describes what you want to learn and how you
-            want to construct your roadmap
-          </p>
-          <Input
-            className="w-96"
-            placeholder="Enter your prompt"
-            value={inputValue}
-            onChange={handleInputChange}
-          />
-          <Button
-            className="mt-4"
-            onClick={() =>
-              handleCreate(inputValue, setLoading, setResponseMessage)
-            }
-          >
-            Create
-          </Button>
-          {loading && <div>Loading...</div>}
-        </div>
-      )}
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">Excited to learn something new?</h1>
+        <Input
+          type="text"
+          placeholder="Enter your learning goal"
+          value={goal}
+          onChange={(e) => setGoal(e.target.value)}
+          onKeyPress={handleKeyPress}
+          className="mb-4"
+          disabled={isCreating}
+        />
+        <Button
+          onClick={handleCreate}
+          disabled={isCreating || !goal.trim()}
+          className="w-full mb-6"
+        >
+          {isCreating ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Creating...
+            </>
+          ) : (
+            'Create Roadmap'
+          )}
+        </Button>
+        {isCreating && (
+          <div className="space-y-4">
+            <Progress value={progress} className="w-full" />
+            <div className="space-y-2">
+              {stages.map((stage, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  {index < currentStage ? (
+                    <CheckCircle className="text-grey-500 h-5 w-5" />
+                  ) : index === currentStage ? (
+                    <Loader2 className="text-grey-500 h-5 w-5 animate-spin" />
+                  ) : (
+                    <div className="h-5 w-5 rounded-full border-2 border-gray-300" />
+                  )}
+                  <span className={`text-sm ${index <= currentStage ? 'text-gray-800' : 'text-gray-400'}`}>
+                    {stage.name}
+                  </span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{stage.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {progress === 100 && (
+          <div className="mt-6 text-center">
+            <h2 className="text-xl font-semibold text-grey-600 mb-2">Roadmap Created Successfully!</h2>
+            <p className="text-gray-600">Your personalized learning journey is ready to begin.</p>
+          </div>
+        )}
+      </div>
     </div>
-  );
-};
-
-export default UserInput;
+  )
+}
