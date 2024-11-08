@@ -86,11 +86,11 @@ export default function MainNav(props: NavProps) {
                   >
                     <Icon className="h-5 w-5" />
                     <span>{item.title}</span>
-                    {item?.badge && (
+                    {/* {item?.badge && (
                       <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
                         {item?.badge}
                       </Badge>
-                    )}
+                    )} */}
                   </Link>
                 )
               );
@@ -145,16 +145,21 @@ export default function MainNav(props: NavProps) {
             </BreadcrumbList>
           </Breadcrumb>
         ) : (
-          <form>
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search products..."
-                className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-              />
-            </div>
-          </form>
+          <div className="w-full flex-1">
+            <span className="text-muted-foreground text-sm">
+              {path.slice(1).charAt(0).toUpperCase() + path.slice(2)}
+            </span>
+          </div>
+          // <form>
+          //   <div className="relative">
+          //     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          //     <Input
+          //       type="search"
+          //       placeholder="Search products..."
+          //       className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
+          //     />
+          //   </div>
+          // </form>
         )}
       </div>
       <DropdownMenu>
@@ -170,7 +175,6 @@ export default function MainNav(props: NavProps) {
           <DropdownMenuItem>
             <Link href="/settings">Settings</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>Support</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
             <a href={process.env.NEXT_PUBLIC_API + "/speck/v1/auth/logout"}>

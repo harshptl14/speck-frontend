@@ -32,10 +32,10 @@ export default function SideNav({ items }: SidebarNavProps) {
               <AppIcon className="h-9 w-9" />
               <span className="text-lg">Speck</span>
             </Link>
-            <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
+            {/* <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
               <Bell className="h-4 w-4" />
               <span className="sr-only">Toggle notifications</span>
-            </Button>
+            </Button> */}
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
@@ -55,11 +55,11 @@ export default function SideNav({ items }: SidebarNavProps) {
                     >
                       <Icon className="h-4 w-4" />
                       <span>{item.title}</span>
-                      {item?.badge && (
+                      {/* {item?.badge && (
                         <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
                           {item?.badge}
                         </Badge>
-                      )}
+                      )} */}
                     </Link>
                   )
                 );
