@@ -87,7 +87,7 @@ const LandingNav = () => {
             {!inView && (
               <Button
                 style={{ transformOrigin: "bottom" }}
-                variant={"rounded"}
+                variant={"default"}
                 className={`transition-all duration-300 transform ${
                   !inView
                     ? "translate-y-0 opacity-100 scale-100"
