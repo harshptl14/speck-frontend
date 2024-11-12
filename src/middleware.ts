@@ -253,12 +253,19 @@ export async function middleware(request: NextRequest) {
         const isValid = await verifyToken(token);
 
         if (isValid) {
-            // If on public domain and authenticated, redirect to app domain
             if (host === PUBLIC_HOST) {
-                return NextResponse.redirect(new URL('/', `https://${APP_HOST}`));
+                // If on public domain and authenticated, redirect to app domain home
+                return NextResponse.redirect(new URL('/home', `https://${APP_HOST}`));
             }
-            // Allow access to private routes on app domain
-            return NextResponse.next();
+
+            if (host === APP_HOST) {
+                // If on app domain and trying to access root or auth, redirect to home
+                if (pathname === '/' || pathname === '/auth') {
+                    return NextResponse.redirect(new URL('/home', `https://${APP_HOST}`));
+                }
+                // Allow access to other private routes on app domain
+                return NextResponse.next();
+            }
         } else {
             // Invalid token - clear it and redirect to auth
             const response = NextResponse.redirect(new URL('/auth', `https://${PUBLIC_HOST}`));
