@@ -122,82 +122,167 @@
 // }
 
 
+// bhoju code
+
+// import { NextResponse, type NextRequest } from 'next/server'
+
+// async function verifyToken(token: string) {
+//   try {
+//     const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/speck/v1/auth/verify-token`, {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({ token }),
+//     });
+//     const data = await response.json();
+//     return data.valid;
+//   } catch (error) {
+//     console.error('Token verification error:', error);
+//     return false;
+//   }
+// }
+
+
+// // REDIRECT_URL_APP="https://app.speck.ing"
+// // NEXT_PUBLIC_API="https://api.speck.ing"
+// // NEXT_PUBLIC_SERVER_API="https://api.speck.ing"
+// // AUTH_REDIRECT="https://speck.ing/auth"
+
+
+// // URL_FRONTEND="https://speck.ing"
+
+// export async function middleware(request: NextRequest) {
+//   const token = request.cookies.get('jwtToken')?.value;
+//   const currentPath = request.nextUrl.pathname;
+//   const hostname = request.nextUrl.hostname;
+
+//   const mainDomain = new URL(process.env.REDIRECT_URL_FRONTEND!).hostname; // speck.ing
+//   const appDomain = new URL(process.env.REDIRECT_URL_APP!).hostname;       // app.speck.ing
+
+//   // Redirect to main domain if user is on app.speck.ing without a token
+//   if (hostname === appDomain && !token) {
+//     return NextResponse.redirect(new URL(process.env.REDIRECT_URL_FRONTEND!, request.url));
+//   }
+
+//   // Token verification for users with a token
+//   if (token) {
+//     try {
+//       const isValid = await verifyToken(token);
+
+//       if (isValid) {
+//         // Redirect to /home if accessing speck.ing with a valid token
+//         if (hostname === mainDomain) {
+//           return NextResponse.redirect(new URL(`${process.env.REDIRECT_URL_APP}/home`, request.url));
+//         }
+//         // Allow access if on app.speck.ing and token is valid
+//         return NextResponse.next();
+//       } else {
+//         // If token is invalid, delete cookie and redirect to auth
+//         const response = NextResponse.redirect(new URL(process.env.AUTH_REDIRECT!, request.url));
+//         response.cookies.delete('jwtToken');
+//         return response;
+//       }
+//     } catch (error) {
+//       console.error('Token verification error:', error);
+//       const response = NextResponse.redirect(new URL(process.env.AUTH_REDIRECT!, request.url));
+//       response.cookies.delete('jwtToken');
+//       return response;
+//     }
+//   } else if (hostname === appDomain) {
+//     // If no token and accessing any route under app.speck.ing, redirect to login
+//     const loginUrl = new URL(process.env.AUTH_REDIRECT!, request.url);
+//     loginUrl.searchParams.set('callbackUrl', request.url);
+//     return NextResponse.redirect(loginUrl);
+//   }
+
+//   return NextResponse.next();
+// }
+
+// export const config = {
+//   matcher: ['/((?!api|_next/static|_next/image|.\.png$).*)'],
+// };
+
 
 import { NextResponse, type NextRequest } from 'next/server'
 
 async function verifyToken(token: string) {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/speck/v1/auth/verify-token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
-    });
-    const data = await response.json();
-    return data.valid;
-  } catch (error) {
-    console.error('Token verification error:', error);
-    return false;
-  }
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/speck/v1/auth/verify-token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token }),
+        });
+        const data = await response.json();
+        return data.valid;
+    } catch (error) {
+        console.error('Token verification error:', error);
+        return false;
+    }
 }
 
-
-// REDIRECT_URL_APP="https://app.speck.ing"
-// NEXT_PUBLIC_API="https://api.speck.ing"
-// NEXT_PUBLIC_SERVER_API="https://api.speck.ing"
-// AUTH_REDIRECT="https://speck.ing/auth"
-
-
-// URL_FRONTEND="https://speck.ing"
-
 export async function middleware(request: NextRequest) {
-  const token = request.cookies.get('jwtToken')?.value;
-  const currentPath = request.nextUrl.pathname;
-  const hostname = request.nextUrl.hostname;
+    const token = request.cookies.get('jwtToken')?.value
+    const currentPath = request.nextUrl.pathname
+    const currentHost = request.nextUrl.host
 
-  const mainDomain = new URL(process.env.REDIRECT_URL_FRONTEND!).hostname; // speck.ing
-  const appDomain = new URL(process.env.REDIRECT_URL_APP!).hostname;       // app.speck.ing
+    const publicRoutes = ['/auth']
+    const privateRoutes = ['/home', '/profile', '/library', '/create', '/templates']
+    const publicHost = new URL(process.env.REDIRECT_URL_FRONTEND!).hostname; // speck.ing
+    const appHost = new URL(process.env.REDIRECT_URL_APP!).hostname;       // app.speck.ing
+    // const appHost = 'app.speck.ing'
+    // const publicHost = 'speck.ing'
 
-  // Redirect to main domain if user is on app.speck.ing without a token
-  if (hostname === appDomain && !token) {
-    return NextResponse.redirect(new URL(process.env.REDIRECT_URL_FRONTEND!, request.url));
-  }
+    // Middleware checks if token is there, and if yes, check if it's valid or not
+    if (token) {
+        try {
+            const isValid = await verifyToken(token);
 
-  // Token verification for users with a token
-  if (token) {
-    try {
-      const isValid = await verifyToken(token);
-
-      if (isValid) {
-        // Redirect to /home if accessing speck.ing with a valid token
-        if (hostname === mainDomain) {
-          return NextResponse.redirect(new URL(`${process.env.REDIRECT_URL_APP}/home`, request.url));
+            if (isValid) {
+                // Token is valid
+                if (currentHost === publicHost) {
+                    // Redirect authenticated user from public host to private host
+                    return NextResponse.redirect(new URL('/', `https://${appHost}`))
+                } else if (privateRoutes.some(route => currentPath.startsWith(route))) {
+                    // Requested route is protected, allow access
+                    return NextResponse.next()
+                }
+            } else {
+                // Token is invalid
+                // Remove the old invalid token (cookies)
+                const response = NextResponse.redirect(new URL('/auth', `https://${currentHost}`))
+                response.cookies.delete('jwtToken')
+                return response
+            }
+        } catch (error) {
+            console.error('Token verification error:', error);
+            // Treat as invalid token
+            const response = NextResponse.redirect(new URL('/auth', `https://${currentHost}`))
+            response.cookies.delete('jwtToken')
+            return response
         }
-        // Allow access if on app.speck.ing and token is valid
-        return NextResponse.next();
-      } else {
-        // If token is invalid, delete cookie and redirect to auth
-        const response = NextResponse.redirect(new URL(process.env.AUTH_REDIRECT!, request.url));
-        response.cookies.delete('jwtToken');
-        return response;
-      }
-    } catch (error) {
-      console.error('Token verification error:', error);
-      const response = NextResponse.redirect(new URL(process.env.AUTH_REDIRECT!, request.url));
-      response.cookies.delete('jwtToken');
-      return response;
+    } else {
+        // Token is not there
+        if (currentHost === appHost) {
+            // Redirect unauthenticated user from private host to public host
+            return NextResponse.redirect(new URL('/auth', `https://${publicHost}`))
+        } else if (privateRoutes.some(route => currentPath.startsWith(route))) {
+            // Requested route is protected, redirect to /auth
+            const url = new URL('/auth', `https://${currentHost}`)
+            url.searchParams.set('callbackUrl', request.url)
+            return NextResponse.redirect(url)
+        } else if (!publicRoutes.includes(currentPath)) {
+            // Requested route is not protected and not public, allow access
+            return NextResponse.next()
+        }
     }
-  } else if (hostname === appDomain) {
-    // If no token and accessing any route under app.speck.ing, redirect to login
-    const loginUrl = new URL(process.env.AUTH_REDIRECT!, request.url);
-    loginUrl.searchParams.set('callbackUrl', request.url);
-    return NextResponse.redirect(loginUrl);
-  }
 
-  return NextResponse.next();
+    // For public routes or any other route, allow access
+    return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.\.png$).*)'],
-};
+    matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+}
