@@ -11,30 +11,6 @@ import {
 import React from "react";
 // import axios from "axios";
 
-const handleGoogleAuth = async () => {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_API}/speck/v1/auth/google`,
-      {
-        mode: "no-cors",
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          // Add your additional headers here
-        },
-        // Add request body if needed
-        // body: JSON.stringify({ key: value }),
-      }
-    );
-    if (!response.ok) {
-      throw new Error("Authentication failed");
-    }
-    // Handle successful authentication
-  } catch (error) {
-    console.error("Authentication error:", error);
-    // Handle error (e.g., show error message to user)
-  }
-};
-
 const AuthPage = () => {
   return (
     <div className="flex grow flex-col justify-center gap-4 items-center pt-2 md:pt-6 lg:pt-10 w-full min-h-screen px-5">

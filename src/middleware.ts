@@ -165,14 +165,14 @@ export async function middleware(request: NextRequest) {
             } else {
                 // Token is invalid
                 // Remove the old invalid token (cookies)
-                const response = NextResponse.redirect(new URL('/auth', request.url))
+                const response = NextResponse.redirect(new URL(`${process.env.NEXT_PUBLIC_FRONTEND_UNAUTH_API}/auth`, request.url))
                 response.cookies.delete('jwtToken')
                 return response
             }
         } catch (error) {
             console.error('Token verification error:', error);
             // Treat as invalid token
-            const response = NextResponse.redirect(new URL('/auth', request.url))
+            const response = NextResponse.redirect(new URL(`${process.env.NEXT_PUBLIC_FRONTEND_UNAUTH_API}/auth`, request.url))
             response.cookies.delete('jwtToken')
             return response
         }
@@ -180,7 +180,7 @@ export async function middleware(request: NextRequest) {
         // Token is not there
         if (protectedRoutes.some(route => currentPath.startsWith(route))) {
             // Requested route is protected, redirect to /auth
-            const url = new URL('/auth', request.url)
+            const url = new URL(`${process.env.NEXT_PUBLIC_FRONTEND_UNAUTH_API}/auth`, request.url)
             url.searchParams.set('callbackUrl', request.url)
             return NextResponse.redirect(url)
         } else if (!publicRoutes.includes(currentPath)) {
