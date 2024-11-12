@@ -206,7 +206,9 @@
 
 import { NextResponse, type NextRequest } from 'next/server'
 
-async function verifyToken(token: string) {
+async function verifyToken(token: string): Promise<boolean> {
+    if (!token) return false;
+
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/speck/v1/auth/verify-token`, {
             method: 'POST',
@@ -215,8 +217,10 @@ async function verifyToken(token: string) {
             },
             body: JSON.stringify({ token }),
         });
+
+        if (!response.ok) return false;
         const data = await response.json();
-        return data.valid;
+        return !!data.valid;
     } catch (error) {
         console.error('Token verification error:', error);
         return false;
@@ -224,17 +228,25 @@ async function verifyToken(token: string) {
 }
 
 export async function middleware(request: NextRequest) {
+    // Skip middleware for static files and API routes
+    if (
+        request.nextUrl.pathname.startsWith('/_next') ||
+        request.nextUrl.pathname.startsWith('/api') ||
+        request.nextUrl.pathname.match(/\.(png|jpg|jpeg|svg|ico)$/)
+    ) {
+        return NextResponse.next();
+    }
+
     const token = request.cookies.get('jwtToken')?.value;
     const { pathname, host } = request.nextUrl;
 
     // Environment variables for hostnames
-    const PUBLIC_HOST = new URL(process.env.REDIRECT_URL_FRONTEND!).hostname; // speck.ing
-    const APP_HOST = new URL(process.env.REDIRECT_URL_APP!).hostname;        // app.speck.ing
-
-    // Early return for static files and API routes
-    if (pathname.startsWith('/_next') || pathname.startsWith('/api')) {
-        return NextResponse.next();
-    }
+    const PUBLIC_HOST = process.env.REDIRECT_URL_FRONTEND
+        ? new URL(process.env.REDIRECT_URL_FRONTEND).hostname
+        : 'speck.ing';
+    const APP_HOST = process.env.REDIRECT_URL_APP
+        ? new URL(process.env.REDIRECT_URL_APP).hostname
+        : 'app.speck.ing';
 
     // Handle authenticated users
     if (token) {
@@ -275,7 +287,9 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        // Skip all internal paths (_next)
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(png|jpg|jpeg|svg)).*)',
-    ],
+        // Match all paths except static files
+        '/',
+        '/(auth|home|profile|library|create|templates)/:path*',
+        '/(api|trpc)/:path*',
+    ]
 }
