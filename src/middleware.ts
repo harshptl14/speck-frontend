@@ -224,65 +224,58 @@ async function verifyToken(token: string) {
 }
 
 export async function middleware(request: NextRequest) {
-    const token = request.cookies.get('jwtToken')?.value
-    const currentPath = request.nextUrl.pathname
-    const currentHost = request.nextUrl.host
+    const token = request.cookies.get('jwtToken')?.value;
+    const { pathname, host } = request.nextUrl;
 
-    const publicRoutes = ['/auth']
-    const privateRoutes = ['/home', '/profile', '/library', '/create', '/templates']
-    const publicHost = new URL(process.env.REDIRECT_URL_FRONTEND!).hostname; // speck.ing
-    const appHost = new URL(process.env.REDIRECT_URL_APP!).hostname;       // app.speck.ing
-    // const appHost = 'app.speck.ing'
-    // const publicHost = 'speck.ing'
+    // Environment variables for hostnames
+    const PUBLIC_HOST = new URL(process.env.REDIRECT_URL_FRONTEND!).hostname; // speck.ing
+    const APP_HOST = new URL(process.env.REDIRECT_URL_APP!).hostname;        // app.speck.ing
 
-    // Middleware checks if token is there, and if yes, check if it's valid or not
+    // Early return for static files and API routes
+    if (pathname.startsWith('/_next') || pathname.startsWith('/api')) {
+        return NextResponse.next();
+    }
+
+    // Handle authenticated users
     if (token) {
-        try {
-            const isValid = await verifyToken(token);
+        const isValid = await verifyToken(token);
 
-            if (isValid) {
-                // Token is valid
-                if (currentHost === publicHost) {
-                    // Redirect authenticated user from public host to private host
-                    return NextResponse.redirect(new URL('/', `https://${appHost}`))
-                } else if (privateRoutes.some(route => currentPath.startsWith(route))) {
-                    // Requested route is protected, allow access
-                    return NextResponse.next()
-                }
-            } else {
-                // Token is invalid
-                // Remove the old invalid token (cookies)
-                const response = NextResponse.redirect(new URL('/auth', `https://${currentHost}`))
-                response.cookies.delete('jwtToken')
-                return response
+        if (isValid) {
+            // If on public domain and authenticated, redirect to app domain
+            if (host === PUBLIC_HOST) {
+                return NextResponse.redirect(new URL('/', `https://${APP_HOST}`));
             }
-        } catch (error) {
-            console.error('Token verification error:', error);
-            // Treat as invalid token
-            const response = NextResponse.redirect(new URL('/auth', `https://${currentHost}`))
-            response.cookies.delete('jwtToken')
-            return response
-        }
-    } else {
-        // Token is not there
-        if (currentHost === appHost) {
-            // Redirect unauthenticated user from private host to public host
-            return NextResponse.redirect(new URL('/auth', `https://${publicHost}`))
-        } else if (privateRoutes.some(route => currentPath.startsWith(route))) {
-            // Requested route is protected, redirect to /auth
-            const url = new URL('/auth', `https://${currentHost}`)
-            url.searchParams.set('callbackUrl', request.url)
-            return NextResponse.redirect(url)
-        } else if (!publicRoutes.includes(currentPath)) {
-            // Requested route is not protected and not public, allow access
-            return NextResponse.next()
+            // Allow access to private routes on app domain
+            return NextResponse.next();
+        } else {
+            // Invalid token - clear it and redirect to auth
+            const response = NextResponse.redirect(new URL('/auth', `https://${PUBLIC_HOST}`));
+            response.cookies.delete('jwtToken');
+            return response;
         }
     }
 
-    // For public routes or any other route, allow access
-    return NextResponse.next()
+    // Handle unauthenticated users
+    // If trying to access app domain without auth, redirect to public domain
+    if (host === APP_HOST) {
+        return NextResponse.redirect(new URL('/auth', `https://${PUBLIC_HOST}`));
+    }
+
+    // On public domain:
+    // Allow access to public routes
+    if (pathname === '/' || pathname === '/auth') {
+        return NextResponse.next();
+    }
+
+    // Redirect to auth for any other routes
+    const url = new URL('/auth', `https://${PUBLIC_HOST}`);
+    url.searchParams.set('callbackUrl', request.url);
+    return NextResponse.redirect(url);
 }
 
 export const config = {
-    matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+    matcher: [
+        // Skip all internal paths (_next)
+        '/((?!_next/static|_next/image|favicon.ico|.*\\.(png|jpg|jpeg|svg)).*)',
+    ],
 }
