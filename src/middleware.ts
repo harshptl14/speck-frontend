@@ -142,33 +142,42 @@ async function verifyToken(token: string) {
   }
 }
 
+
+// REDIRECT_URL_APP="https://app.speck.ing"
+// NEXT_PUBLIC_API="https://api.speck.ing"
+// NEXT_PUBLIC_SERVER_API="https://api.speck.ing"
+// AUTH_REDIRECT="https://speck.ing/auth"
+
+
+// URL_FRONTEND="https://speck.ing"
+
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('jwtToken')?.value;
   const currentPath = request.nextUrl.pathname;
   const hostname = request.nextUrl.hostname;
 
-  const publicRoutes = ['/auth', '/'];
-  const protectedRoutes = ['/home', '/profile', '/library', '/create', '/templates'];
+  const mainDomain = new URL(process.env.REDIRECT_URL_FRONTEND!).hostname; // speck.ing
+  const appDomain = new URL(process.env.REDIRECT_URL_APP!).hostname;       // app.speck.ing
 
   // Redirect to main domain if user is on app.speck.ing without a token
-  if (hostname === new URL(process.env.REDIRECT_URL_APP!).hostname && !token) {
+  if (hostname === appDomain && !token) {
     return NextResponse.redirect(new URL(process.env.REDIRECT_URL_FRONTEND!, request.url));
   }
 
-  // Token verification for other cases
+  // Token verification for users with a token
   if (token) {
     try {
       const isValid = await verifyToken(token);
 
       if (isValid) {
-        // Token is valid
-        if (protectedRoutes.some(route => currentPath.startsWith(route))) {
-          return NextResponse.next();
-        } else if (publicRoutes.includes(currentPath) && hostname === new URL(process.env.REDIRECT_URL_FRONTEND!).hostname) {
+        // Redirect to /home if accessing speck.ing with a valid token
+        if (hostname === mainDomain) {
           return NextResponse.redirect(new URL(`${process.env.REDIRECT_URL_APP}/home`, request.url));
         }
+        // Allow access if on app.speck.ing and token is valid
+        return NextResponse.next();
       } else {
-        // Redirect to login if token is invalid
+        // If token is invalid, delete cookie and redirect to auth
         const response = NextResponse.redirect(new URL(process.env.AUTH_REDIRECT!, request.url));
         response.cookies.delete('jwtToken');
         return response;
@@ -179,8 +188,8 @@ export async function middleware(request: NextRequest) {
       response.cookies.delete('jwtToken');
       return response;
     }
-  } else if (protectedRoutes.some(route => currentPath.startsWith(route))) {
-    // Redirect to login if no token and accessing protected route
+  } else if (hostname === appDomain) {
+    // If no token and accessing any route under app.speck.ing, redirect to login
     const loginUrl = new URL(process.env.AUTH_REDIRECT!, request.url);
     loginUrl.searchParams.set('callbackUrl', request.url);
     return NextResponse.redirect(loginUrl);
