@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen, Clock, Zap, Brain, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import AppIcon from "@/components/appIcon";
 
 export const metadata: Metadata = {
   title: "Speck - Learn Something New Every Day",
@@ -39,7 +40,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl">
           <nav className="flex items-center justify-between rounded-full bg-zinc-100/70 px-6 py-3 backdrop-blur-md max-w-xl mx-auto">
             <Link href="/" className="flex items-center space-x-2">
-              <BookOpen className="h-6 w-6 text-zinc-900" aria-hidden="true" />
+              <AppIcon className="h-8 w-8 text-zinc-900" />
               <span className="text-xl font-semibold text-zinc-900">Speck</span>
             </Link>
             <div className="flex items-center space-x-6">
