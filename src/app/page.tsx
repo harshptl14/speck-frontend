@@ -1,67 +1,115 @@
-import LandingNav from "@/components/landingNav";
+import { Metadata } from "next";
+import Link from "next/link";
+import { BookOpen, Clock, Zap, Brain, BarChart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export const metadata: Metadata = {
+  title: "Speck - Learn Something New Every Day",
+  description:
+    "Make learning a natural part of your day with bite-sized lessons that fit your schedule.",
+};
+
+const features = [
+  {
+    icon: Clock,
+    title: "Quick & Easy",
+    description: "Learn in just 5 minutes a day, perfect for coffee breaks",
+  },
+  {
+    icon: Zap,
+    title: "Made for You",
+    description: "Lessons that match your interests and learning style",
+  },
+  {
+    icon: Brain,
+    title: "Learn Anything",
+    description: "From coding to cooking, discover what interests you",
+  },
+  {
+    icon: BarChart,
+    title: "See Your Growth",
+    description: "Watch your knowledge grow day by day",
+  },
+];
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between">
-      <LandingNav />
-      {/* <div className="z-10 w-full max-w-5xl items-center justify-between text-sm lg:flex"> */}
-      {/* <div className="bg-card p-4 border border-spacing-">Hii</div>
-        <Button>Worked? click here!!</Button> */}
-      <div className="flex flex-col items-center justify-center min-h-screen flex-1 w-full max-w-2xl text-center">
-        {/* <img
-          src="/placeholder.svg"
-          alt="Speck Icon"
-          className="w-20 h-20 mb-6"
-          width="80"
-          height="80"
-          style={{ aspectRatio: "80/80", objectFit: "cover" }}
-        /> */}
-        <h1 className="text-6xl font-extrabold leading-tight">
-          Bite-Sized Learning for Busy Minds
-        </h1>
-        <p className="mt-4 text-lg text-gray-600">
-          Discover a seamless way to integrate continuous learning into your
-          daily routine with Speck's SaaS platform.
-        </p>
-        <div className="flex items-center mt-6 space-x-4">
-          <button
-            id="joinForFree"
-            className="px-6 py-3 text-white bg-black rounded-lg"
-          >
-            Join for free
-          </button>
-          <button className="px-6 py-3 text-black bg-gray-200 rounded-lg">
-            See our plans
-          </button>
+    <div className="min-h-screen bg-gradient-to-b from-white to-white">
+      <header className="fixed top-0 left-0 right-0 z-50 px-4 py-6">
+        <div className="mx-auto max-w-7xl">
+          <nav className="flex items-center justify-between rounded-full bg-zinc-100/70 px-6 py-3 backdrop-blur-md max-w-xl mx-auto">
+            <Link href="/" className="flex items-center space-x-2">
+              <BookOpen className="h-6 w-6 text-zinc-900" aria-hidden="true" />
+              <span className="text-xl font-semibold text-zinc-900">Speck</span>
+            </Link>
+            <div className="flex items-center space-x-6">
+              <Link
+                href="#features"
+                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors"
+              >
+                Features
+              </Link>
+              <Link href={"/auth"}>
+                <Button variant="outline" className="h-9">
+                  Sign in
+                </Button>
+              </Link>
+            </div>
+          </nav>
         </div>
-      </div>
-      <div className="w-full max-w-md mt-12">
-        <p className="mb-4 text-lg text-gray-600">
-          Speck is a SaaS platform that offers bite-sized learning content to
-          help busy professionals integrate continuous learning into their daily
-          routines. Our platform features a wide range of topics, from business
-          and technology to personal development and wellness.
-        </p>
-        <p className="mb-4 text-lg text-gray-600">
-          With Speck, you can access high-quality learning content in short,
-          digestible formats that fit seamlessly into your busy schedule.
-          Whether you're commuting, waiting in line, or taking a break, Speck
-          makes it easy to learn and grow.
-        </p>
-        <p className="mb-4 text-lg text-gray-600">
-          Our platform is designed to be user-friendly and engaging, with
-          features like personalized recommendations, progress tracking, and
-          social learning communities. We believe that continuous learning is
-          the key to personal and professional growth, and we're committed to
-          making it accessible and enjoyable for everyone.
-        </p>
-        <p className="mb-4 text-lg text-gray-600">
-          Join the thousands of learners who have already discovered the power
-          of Speck and start your journey towards a more informed and empowered
-          future.
-        </p>
-      </div>
-      {/* </div> */}
-    </main>
+      </header>
+
+      <main className="container mx-auto px-4 pt-28">
+        <section className="py-20 text-center">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight text-zinc-900 mb-6">
+            Learn Something New,
+            <br />
+            Five Minutes at a Time
+          </h1>
+          <p className="text-lg text-zinc-600 mb-8 max-w-2xl mx-auto">
+            Stop saying "I wish I had time to learn that." With Speck, you can
+            learn anything in bite-sized lessons that fit naturally into your
+            day.
+          </p>
+          <Link href={"/auth"}>
+            <Button
+              size="lg"
+              className="bg-zinc-900 hover:bg-zinc-800 text-white transition-colors"
+            >
+              Start Learning for Free
+            </Button>
+          </Link>
+        </section>
+
+        <section id="features" className="py-20">
+          <h2 className="text-3xl font-bold text-center mb-12 text-zinc-900">
+            Why You'll Love Speck
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="rounded-lg border bg-white/50 backdrop-blur-sm p-6"
+              >
+                <feature.icon
+                  className="h-8 w-8 mb-4 text-zinc-700"
+                  aria-hidden="true"
+                />
+                <h3 className="text-xl font-semibold mb-2 text-zinc-900">
+                  {feature.title}
+                </h3>
+                <p className="text-zinc-600">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t mt-20 bg-zinc-50">
+        <div className="container mx-auto px-4 py-8 text-center text-sm text-zinc-600">
+          <p>© {new Date().getFullYear()} Speck. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
   );
 }
