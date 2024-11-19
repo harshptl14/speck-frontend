@@ -268,8 +268,9 @@ export async function middleware(request: NextRequest) {
             }
         } else {
             // Invalid token - clear it and redirect to auth
+            document.cookie = 'jwtToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+            window.location.href = '/';
             const response = NextResponse.redirect(new URL('/auth', `https://${PUBLIC_HOST}`));
-            response.cookies.delete('jwtToken');
             return response;
         }
     }
