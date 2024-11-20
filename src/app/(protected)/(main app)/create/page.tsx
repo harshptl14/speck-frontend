@@ -1,19 +1,12 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import React from "react";
-import UserInput from "./UserInput";
+import RoadmapCreator from "./UserInput";
 
-const CreateRaodmapPage = () => {
+// app/create-roadmap/page.tsx (Server Component)
+export default function CreateRoadmapPage() {
   return (
-    <div
-      className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm"
-      x-chunk="dashboard-02-chunk-1"
-    >
-      <div className="flex flex-col items-center gap-1 text-center">
-        <UserInput />
+    <div className="container mx-auto py-8">
+      <div className="max-w-4xl mx-auto">
+        <RoadmapCreator />
       </div>
     </div>
   );
-};
-
-export default CreateRaodmapPage;
+}

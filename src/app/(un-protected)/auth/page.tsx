@@ -21,7 +21,7 @@ const AuthPage = () => {
         <CardHeader className="flex grow flex-col justify-center text-center">
           <CardTitle className="text-2xl flex content-center justify-center">
             <div className="flex items-center gap-2 font-semibold">
-              <AppIcon className="h-10 w-10" />
+              <AppIcon width={35} height={35} />
               <span className="text-2xl font-semibold">Speck</span>
             </div>
           </CardTitle>

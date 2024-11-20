@@ -208,7 +208,7 @@ export function CombinedNav({
               className="text-2xl font-bold flex items-center gap-1"
             >
               <div className="flex aspect-square size-13 p-1 items-center justify-center rounded-2xl text-sidebar-primary-foreground">
-                <AppIcon className="h-9 w-9" />
+                <AppIcon width={35} height={35} />
               </div>
               <span className="font-bold text-lg">Speck</span>
             </Link>
