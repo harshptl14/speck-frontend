@@ -52,7 +52,7 @@ export default function MainNav(props: NavProps) {
               href="#"
               className="flex items-center gap-2 text-lg font-semibold"
             >
-              <AppIcon className="h-9 w-9" />
+              <AppIcon width={35} height={35} />
               <span className="sr-only">Speck</span>
             </Link>
             {props?.items.map((item, index) => {
