@@ -10,11 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 
-// export const metadata: Metadata = {
-//   title: "Roadmap | Learn Programming",
-//   description: "Start your programming journey with our interactive roadmap",
-// };
-
 const linkData = [
   {
     title: "C++ Reference",
@@ -64,7 +59,7 @@ const getSubtopicData = async (id: string) => {
   }
 };
 
-export const StartRoadmap = async ({
+const StartRoadmap = async ({
   params,
 }: {
   params: { id: string; slug: string };
@@ -74,7 +69,6 @@ export const StartRoadmap = async ({
   return (
     <main className="max-w-6xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-8 text-primary">
-        {/* <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl border-b pb-5 mb-3"> */}
         {subtopicData?.data?.subtopic?.name || (
           <Skeleton className="h-12 w-3/4 mb-4" />
         )}
@@ -103,27 +97,16 @@ export const StartRoadmap = async ({
           <MarkdownRenderer
             markdown={subtopicData?.data?.subtopic?.textContents[0]?.content}
           />
-          {/* Shorts Video section */}
-          {/* <h2 className="mb-4 mt-8 text-2xl font-semibold">
-            Related YouTube Shorts
-          </h2> */}
           {subtopicData?.data?.shortsVideoContents.length > 0 ? (
             <VideoView videoData={subtopicData?.data?.shortsVideoContents} />
           ) : (
             <></>
           )}
-          {/* Video section */}
-          {/* <h2 className="mb-4 mt-8 text-2xl font-semibold">
-            Related YouTube Videos
-          </h2> */}
-
           {subtopicData?.data?.normalVideoContents.length > 0 ? (
             <VideoView videoData={subtopicData?.data?.normalVideoContents} />
           ) : (
             <></>
           )}
-          {/* Links section */}
-          {/* <h2 className="mt-8 text-2xl font-semibold">Useful Links</h2> */}
           <LinkView linkData={linkData} />
         </div>
       )}
