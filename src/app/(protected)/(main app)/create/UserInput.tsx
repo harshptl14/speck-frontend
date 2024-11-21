@@ -141,6 +141,7 @@ export default function RoadmapCreationComponent() {
 
     const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_API!, {
       auth: { token: `Bearer ${authorization}` },
+      withCredentials: true,
     });
 
     newSocket.on("roadmapProgress", (data: SocketProgressData) => {
