@@ -1,9 +1,13 @@
-
 import CourseProgress from "@/components/homepage/courseProgress";
 import CTASection from "@/components/homepage/CTASection";
 import GreetingSection from "@/components/homepage/greetingSection";
 import RoadmapSummary from "@/components/homepage/roadmapSummary";
 import { fetchDataFromServer } from "@/services/fetch_roadmap_info";
+import type { Metadata } from "next";
+
+export const metadata = {
+  title: "Home",
+};
 
 export default async function HomePage() {
   const { userInfo, roadmapData } = await fetchDataFromServer();

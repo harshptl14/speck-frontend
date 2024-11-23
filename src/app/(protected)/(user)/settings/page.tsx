@@ -245,6 +245,7 @@ import { useUser } from "@/hooks/useUser";
 import { PersonalInformation } from "../../../../components/user/PersonalInfo";
 import { PlanBilling } from "../../../../components/user/PlanBilling";
 import SimpleNav from "@/components/simpleNav";
+import Head from "next/head";
 
 const Settings: React.FC = () => {
   const { user, loading, error } = useUser();
@@ -256,6 +257,10 @@ const Settings: React.FC = () => {
 
   return (
     <div>
+      <Head>
+        <title>Settings</title>
+        <meta name="description" content="User account settings page" />
+      </Head>
       <SimpleNav />
       <div className="container mx-auto py-10 px-4 sm:px-6 lg:px-8 max-w-3xl">
         <h1 className="text-3xl font-bold mb-8">Account Settings</h1>

@@ -6,6 +6,77 @@ import Link from "next/link";
 import SideNav from "@/components/sideNav";
 import MainNav from "@/components/mainNav";
 import TabsComponent from "@/components/tabsComponent";
+import { Metadata, ResolvingMetadata } from "next";
+import { siteConfig } from "@/config/site";
+
+type Props = {
+  params: { id: string };
+};
+
+// Generate metadata for the roadmap page
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // Reuse the existing fetch function to get roadmap data
+  const roadmapData = await getMyRoadmap(params.id);
+
+  // Construct time to complete string
+  const timeToComplete = roadmapData?.data?.approximateTime
+    ? `${roadmapData.data.approximateTime} hours`
+    : "Variable duration";
+
+  // Format the module count string
+  const moduleInfo = `${roadmapData?.data?.topicCount || 0} modules, ${
+    roadmapData?.data?.subtopicCount || 0
+  } subtopics`;
+
+  return {
+    title: `${roadmapData?.data?.roadmap?.name || "Learning Roadmap"}`,
+    description:
+      roadmapData?.data?.roadmap?.description ||
+      "Explore this comprehensive learning roadmap",
+
+    // OpenGraph metadata for social sharing
+    openGraph: {
+      title: roadmapData?.data?.roadmap?.name,
+      description: roadmapData?.data?.roadmap?.description,
+      type: "article",
+      authors: ["YourSiteName"],
+      publishedTime: roadmapData?.data?.roadmap?.createdAt,
+      modifiedTime: roadmapData?.data?.roadmap?.updatedAt,
+    },
+
+    // Twitter card metadata
+    twitter: {
+      card: "summary_large_image",
+      title: roadmapData?.data?.roadmap?.name,
+      description: roadmapData?.data?.roadmap?.description,
+    },
+
+    // Additional metadata
+    keywords: [
+      "learning roadmap",
+      "online course",
+      roadmapData?.data?.roadmap?.name,
+      "education",
+      "learning path",
+    ].filter(Boolean),
+
+    // Other metadata properties
+    other: {
+      "course:modules": moduleInfo,
+      "course:duration": timeToComplete,
+      "course:level": roadmapData?.data?.roadmap?.level || "All levels",
+    },
+
+    // Robots metadata
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 const getMyRoadmap = async (id: string) => {
   const authorization = cookies().get("jwtToken")?.value;

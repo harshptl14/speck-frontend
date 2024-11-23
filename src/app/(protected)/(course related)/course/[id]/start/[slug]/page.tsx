@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import React from "react";
-import { Metadata } from "next";
 import Generate from "./generate";
 import VideoView from "@/components/course/videoView";
 import LinkView from "@/components/course/linkView";
@@ -9,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
+import { Metadata, ResolvingMetadata } from "next";
 
 const linkData = [
   {
@@ -115,3 +115,33 @@ const StartRoadmap = async ({
 };
 
 export default StartRoadmap;
+
+type Props = {
+  params: { id: string; slug: string };
+};
+
+// Generate metadata for individual subtopic pages
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // Fetch the subtopic data
+  const subtopicData = await getSubtopicData(params.slug);
+
+  // Optionally fetch the parent metadata
+  const previousMetadata = await parent;
+
+  return {
+    title: `${subtopicData?.data?.subtopic?.name || "Learning Topic"}`,
+    description:
+      subtopicData?.data?.subtopic?.description ||
+      "Explore this learning topic and enhance your skills",
+    openGraph: {
+      title: subtopicData?.data?.subtopic?.name,
+      description: subtopicData?.data?.subtopic?.description,
+      type: "article",
+      // Add more OpenGraph metadata as needed
+    },
+    // You can add more metadata properties here
+  };
+}

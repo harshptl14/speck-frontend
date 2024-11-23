@@ -7,6 +7,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FileIcon } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Templates",
+};
 
 export default function TemplatesPage() {
   return (
