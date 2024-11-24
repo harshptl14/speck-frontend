@@ -139,7 +139,7 @@ export default function RoadmapCreationComponent() {
       .find((cookie) => cookie.includes("jwtToken"))
       ?.split("=")[1];
 
-    // console.log("socket", process.env.NEXT_PUBLIC_WEB_SOCKET_URL);
+    console.log("socket", process.env.NEXT_PUBLIC_WEB_SOCKET_URL);
 
     const newSocket = io(process.env.NEXT_PUBLIC_WEB_SOCKET_URL, {
       auth: { token: `Bearer ${authorization}` },
