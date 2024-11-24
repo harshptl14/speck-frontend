@@ -29,7 +29,7 @@ export const PersonalInformation: React.FC<PersonalInformationProps> = ({
       <CardDescription>Your account details and preferences.</CardDescription>
     </CardHeader>
     <CardContent className="space-y-6">
-      <div className="flex items-center space-x-4">
+      {/* <div className="flex items-center space-x-4">
         <Avatar className="h-20 w-20">
           <AvatarImage
             src="/placeholder.svg?height=80&width=80"
@@ -42,7 +42,7 @@ export const PersonalInformation: React.FC<PersonalInformationProps> = ({
         <Button variant="outline" size="sm">
           Change Photo
         </Button>
-      </div>
+      </div> */}
 
       <InfoField label="Username" value={user.name} />
       <InfoField label="Email" value={user.email} />

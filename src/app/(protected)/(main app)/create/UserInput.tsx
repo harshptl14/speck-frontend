@@ -220,7 +220,7 @@ export default function RoadmapCreationComponent() {
   );
 
   return (
-    <div className="bg-gradient-to-br from-primary-50 to-secondary-50 p-4 sm:p-6 lg:p-8">
+    <div className="bg-gradient-to-br from-primary-50 to-secondary-50 p-0 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
         {error && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center">
@@ -243,10 +243,10 @@ export default function RoadmapCreationComponent() {
               className="space-y-6 md:space-y-8"
             >
               <div className="text-center space-y-2 md:space-y-4">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
+                <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-primary">
                   Let's Plan Your Learning Journey Together! ✨
                 </h1>
-                <p className="text-sm sm:text-md lg:text-lg text-muted-foreground">
+                <p className="text-sm sm:text-lg font-light lg:text-lg text-muted-foreground">
                   Tell us what you'd love to learn, and we'll help you get there
                   step by step.
                 </p>
@@ -276,12 +276,12 @@ export default function RoadmapCreationComponent() {
                     value={goal}
                     minLength={5}
                     onChange={(e) => setGoal(e.target.value)}
-                    className="w-full h-40 text-base sm:text-lg p-4 rounded-lg resize-none"
+                    className="w-full h-40 text-sm sm:text-md p-4 rounded-lg resize-none"
                   />
                   <Button
                     onClick={handleCreate}
                     disabled={!goal.trim()}
-                    className="w-full text-base sm:text-sm py-4"
+                    className="w-full text-sm sm:text-sm py-4"
                   >
                     Create My Learning Roadmap
                   </Button>

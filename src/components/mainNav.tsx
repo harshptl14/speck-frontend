@@ -38,7 +38,7 @@ export interface NavProps {
 export default function MainNav(props: NavProps) {
   const path = usePathname();
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 sticky top-0 backdrop-blur-xl">
+    <header className="flex h-14 z-50 items-center gap-4 border-b px-4 lg:h-[60px] lg:px-6 sticky top-0 backdrop-blur-xl">
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden">
@@ -53,7 +53,7 @@ export default function MainNav(props: NavProps) {
               className="flex items-center gap-2 text-lg font-semibold"
             >
               <AppIcon width={35} height={35} />
-              <span className="sr-only">Speck</span>
+              <span className="">Speck</span>
             </Link>
             {props?.items.map((item, index) => {
               const Icon = Icons[item.icon || "arrowRight"];
@@ -132,13 +132,13 @@ export default function MainNav(props: NavProps) {
                         {breadcrumb.title}
                       </BreadcrumbLink>
                     ) : (
-                      <span className="text-muted-foreground">
+                      <span className="text-muted-foreground hidden md:block">
                         {breadcrumb.title}
                       </span>
                     )}
                   </BreadcrumbItem>
                   {index < (props.breadcrumbs?.length ?? 0) - 1 && (
-                    <BreadcrumbSeparator />
+                    <BreadcrumbSeparator className="hidden md:block" />
                   )}
                 </>
               ))}
@@ -146,7 +146,7 @@ export default function MainNav(props: NavProps) {
           </Breadcrumb>
         ) : (
           <div className="w-full flex-1">
-            <span className="text-muted-foreground text-sm">
+            <span className="text-muted-foreground text-md font-semibold">
               {path.slice(1).charAt(0).toUpperCase() + path.slice(2)}
             </span>
           </div>

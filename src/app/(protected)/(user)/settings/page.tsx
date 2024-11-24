@@ -266,7 +266,7 @@ const Settings: React.FC = () => {
         <h1 className="text-3xl font-bold mb-8">Account Settings</h1>
         <div className="space-y-8">
           <PersonalInformation user={user} />
-          <PlanBilling />
+          {/* <PlanBilling /> */}
         </div>
       </div>
     </div>

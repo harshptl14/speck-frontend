@@ -251,12 +251,12 @@ export function CombinedNav({
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     href="/library"
-                    className="text-muted-foreground"
+                    className="text-muted-foreground hidden md:block"
                   >
                     Library
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator />
+                <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     href={`/course/${roadmapId}`}
@@ -265,7 +265,7 @@ export function CombinedNav({
                     {courseData.roadmap.name}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator />
+                <BreadcrumbSeparator className="hidden md:block" />
                 {currentTopicId && (
                   <>
                     <BreadcrumbItem className="hidden md:block">

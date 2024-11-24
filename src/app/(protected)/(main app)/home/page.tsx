@@ -17,7 +17,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="min-h-screen from-background to-muted p-6">
+    <div className="from-background to-muted">
       <main className="container mx-auto space-y-12">
         <GreetingSection userName={userInfo.name} />
         {roadmapData.totalRoadmapIds.length > 0 && (
