@@ -268,7 +268,7 @@ export function CombinedNav({
                 <BreadcrumbSeparator />
                 {currentTopicId && (
                   <>
-                    <BreadcrumbItem>
+                    <BreadcrumbItem className="hidden md:block">
                       <BreadcrumbLink className="text-muted-foreground">
                         {
                           courseData.topics.find(
