@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: siteConfig.url,
+    url: siteConfig.url_app || siteConfig.url,
     title: siteConfig.name,
     description: siteConfig.description,
     siteName: siteConfig.name,
@@ -40,15 +40,15 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
-    images: [`${siteConfig.url}/speck-og.png`],
-    creator: "@shadcn",
+    images: [`${siteConfig.url_app || siteConfig.url}/speck-og.png`],
+    creator: "@harshptl14",
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: "./favicon.ico",
     shortcut: "/favicon-16x16.png",
     apple: "/apple-icon.png",
   },
-  manifest: `${siteConfig.url}/site.webmanifest`,
+  manifest: `${siteConfig.url_app || siteConfig.url}/site.webmanifest`,
 };
 
 export default function RootLayout({
@@ -58,12 +58,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
+      {/* <head>
         <script
           src="https://unpkg.com/react-scan/dist/auto.global.js"
           async
         ></script>
-      </head>
+      </head> */}
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
