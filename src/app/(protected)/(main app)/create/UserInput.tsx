@@ -133,53 +133,124 @@ export default function RoadmapCreationComponent() {
   }, [progress, triggerConfetti]);
 
   // Memoized Socket Connection Handler
+  // const setupSocketConnection = useCallback(() => {
+  //   const authorization = document?.cookie
+  //     ?.split(";")
+  //     .find((cookie) => cookie.includes("jwtToken"))
+  //     ?.split("=")[1];
+
+  //   console.log("socket", process.env.NEXT_PUBLIC_WEB_SOCKET_URL);
+
+  //   const newSocket = io(process.env.NEXT_PUBLIC_WEB_SOCKET_URL, {
+  //     auth: { token: `Bearer ${authorization}` },
+  //     path: '/socket',
+  //     transports: ['websocket', 'polling'],
+  //     withCredentials: true,
+  //   });
+
+  //   newSocket.on("roadmapProgress", (data: SocketProgressData) => {
+  //     setProgress(data.progress);
+  //     const stageIndex = STAGES.findLastIndex(
+  //       (stage) => data.progress >= stage.threshold
+  //     );
+  //     setCurrentStage(stageIndex);
+  //   });
+
+  //   newSocket.on("roadmapComplete", (data: RoadmapResponse) => {
+  //     setProgress(100);
+  //     setRoadmapResponse(data);
+  //     setIsCreating(false);
+  //     newSocket.disconnect();
+  //   });
+
+  //   newSocket.on("roadmapExists", (data: RoadmapResponse) => {
+  //     setProgress(100);
+  //     setRoadmapResponse(data);
+  //     setIsCreating(false);
+  //     newSocket.disconnect();
+  //   });
+
+  //   newSocket.on("roadmapError", (data: { message: string }) => {
+  //     console.error("Error:", data.message);
+  //     setError(data.message || "An unexpected error occurred");
+  //     setIsCreating(false);
+  //     newSocket.disconnect();
+  //   });
+
+  //   setSocket(newSocket);
+  //   return newSocket;
+  // }, []);
+
   const setupSocketConnection = useCallback(() => {
-    const authorization = document?.cookie
-      ?.split(";")
-      .find((cookie) => cookie.includes("jwtToken"))
-      ?.split("=")[1];
+  const authorization = document?.cookie
+    ?.split(";")
+    .find((cookie) => cookie.trim().startsWith("jwtToken="))
+    ?.split("=")[1];
 
-    console.log("socket", process.env.NEXT_PUBLIC_WEB_SOCKET_URL);
+  if (!authorization) {
+    setError("Please log in to create a roadmap");
+    setIsCreating(false);
+    return null;
+  }
 
-    const newSocket = io(process.env.NEXT_PUBLIC_WEB_SOCKET_URL, {
-      auth: { token: `Bearer ${authorization}` },
-      path: '/socket',
-      transports: ['websocket', 'polling'],
-      withCredentials: true,
-    });
+  console.log("socket", process.env.NEXT_PUBLIC_WEB_SOCKET_URL);
+  console.log("Authorization token:", `Bearer ${authorization}`);
 
-    newSocket.on("roadmapProgress", (data: SocketProgressData) => {
-      setProgress(data.progress);
-      const stageIndex = STAGES.findLastIndex(
-        (stage) => data.progress >= stage.threshold
-      );
-      setCurrentStage(stageIndex);
-    });
+  const newSocket = io(process.env.NEXT_PUBLIC_WEB_SOCKET_URL || 'https://api.speck.ing', {
+    auth: { token: `Bearer ${authorization}` },
+    path: '/socket',
+    transports: ['websocket'],
+    withCredentials: true,
+  });
 
-    newSocket.on("roadmapComplete", (data: RoadmapResponse) => {
-      setProgress(100);
-      setRoadmapResponse(data);
+  newSocket.on("connect", () => {
+    console.log("Connected to Socket.IO server");
+  });
+
+  newSocket.on("connect_error", (error) => {
+    console.error("Socket.IO connect error:", error.message);
+    if (error.message.includes("Authentication error")) {
+      setError("Session expired. Please log in again.");
       setIsCreating(false);
       newSocket.disconnect();
-    });
+    }
+  });
 
-    newSocket.on("roadmapExists", (data: RoadmapResponse) => {
-      setProgress(100);
-      setRoadmapResponse(data);
-      setIsCreating(false);
-      newSocket.disconnect();
-    });
+  newSocket.on("roadmapProgress", (data: SocketProgressData) => {
+    console.log("Roadmap progress:", data);
+    setProgress(data.progress);
+    const stageIndex = STAGES.findLastIndex(
+      (stage) => data.progress >= stage.threshold
+    );
+    setCurrentStage(stageIndex);
+  });
 
-    newSocket.on("roadmapError", (data: { message: string }) => {
-      console.error("Error:", data.message);
-      setError(data.message || "An unexpected error occurred");
-      setIsCreating(false);
-      newSocket.disconnect();
-    });
+  newSocket.on("roadmapComplete", (data: RoadmapResponse) => {
+    console.log("Roadmap complete:", data);
+    setProgress(100);
+    setRoadmapResponse(data);
+    setIsCreating(false);
+    newSocket.disconnect();
+  });
 
-    setSocket(newSocket);
-    return newSocket;
-  }, []);
+  newSocket.on("roadmapExists", (data: RoadmapResponse) => {
+    console.log("Roadmap exists:", data);
+    setProgress(100);
+    setRoadmapResponse(data);
+    setIsCreating(false);
+    newSocket.disconnect();
+  });
+
+  newSocket.on("roadmapError", (data: { message: string }) => {
+    console.error("Roadmap error:", data.message);
+    setError(data.message || "An unexpected error occurred");
+    setIsCreating(false);
+    newSocket.disconnect();
+  });
+
+  setSocket(newSocket);
+  return newSocket;
+}, []);
 
   // Memoized Roadmap Creation Handler
   const handleCreate = useCallback(() => {
@@ -195,7 +266,7 @@ export default function RoadmapCreationComponent() {
 
       // Setup new socket connection
       const newSocket = setupSocketConnection();
-      newSocket.emit("createRoadmap", { prompt: goal });
+      newSocket?.emit("createRoadmap", { prompt: goal });
     } catch (error) {
       console.error("Error creating roadmap:", error);
       setError("An unexpected error occurred");
