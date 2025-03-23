@@ -143,6 +143,8 @@ export default function RoadmapCreationComponent() {
 
     const newSocket = io(process.env.NEXT_PUBLIC_WEB_SOCKET_URL, {
       auth: { token: `Bearer ${authorization}` },
+      path: '/socket',
+      transports: ['websocket', 'polling'],
       withCredentials: true,
     });
 
