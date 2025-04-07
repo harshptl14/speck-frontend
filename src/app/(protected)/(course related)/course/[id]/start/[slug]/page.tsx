@@ -107,7 +107,7 @@ const StartRoadmap = async ({
           ) : (
             <></>
           )}
-          <LinkView linkData={linkData} />
+          {/* <LinkView linkData={linkData} /> */}
         </div>
       )}
     </main>
