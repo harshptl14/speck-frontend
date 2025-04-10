@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     creator: "@harshptl14",
   },
   icons: {
-    icon: "./favicon.ico",
+    icon: "/favicon.ico",  // Updated path
     shortcut: "/favicon-16x16.png",
     apple: "/apple-icon.png",
   },
@@ -58,14 +58,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || "G-EWBJ209B17";
+  
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* <head>
-        <script
-          src="https://unpkg.com/react-scan/dist/auto.global.js"
-          async
-        ></script>
-      </head> */}
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -76,26 +72,33 @@ export default function RootLayout({
         <Analytics />
         <Toaster />
 
-        <Script id="clarity" strategy="afterInteractive">
-          {`
+        <Script
+        id="microsoft-clarity"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
             (function(c,l,a,r,i,t,y){
                 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                c[a].q=c[a].q||[];t=l.createElement(r);t.async=1;
+                t.src="https://www.clarity.ms/tag/"+i;
                 y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
             })(window, document, "clarity", "script", "r1ly2hrp40");
-          `}
-        </Script>
+          `,
+        }}
+      />
+
         <Script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-EWBJ209B17"
         />
 
-        <Script id="google-analytics">
+        <Script id="google-analytics" strategy="afterInteractive">
           {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', ${'${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}'});
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${gaId}');
+            console.log('Google Analytics loaded', '${gaId}');
           `}
         </Script>
       </body>
