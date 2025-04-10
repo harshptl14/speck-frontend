@@ -72,11 +72,13 @@ export default function RootLayout({
         <Analytics />
         <Toaster />
 
-        <Script
-        id="microsoft-clarity"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
+        
+        {process.env.NODE_ENV === 'production' && (
+          <Script
+            id="microsoft-clarity"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
             (function(c,l,a,r,i,t,y){
                 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
                 c[a].q=c[a].q||[];t=l.createElement(r);t.async=1;
@@ -84,23 +86,27 @@ export default function RootLayout({
                 y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
             })(window, document, "clarity", "script", "r1ly2hrp40");
           `,
-        }}
-      />
+            }}
+          />)}
 
-        <Script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-EWBJ209B17"
-        />
+        
+        {process.env.NODE_ENV === 'production' && (<>
+        
+          <Script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=G-EWBJ209B17"
+          />
 
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${gaId}');
-            console.log('Google Analytics loaded', '${gaId}');
           `}
-        </Script>
+          </Script>
+          
+        </>)}
       </body>
     </html>
   );
