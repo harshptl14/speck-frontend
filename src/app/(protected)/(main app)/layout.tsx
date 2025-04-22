@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import SideNav from "@/components/sideNav";
 import MainNav from "@/components/mainNav";
+import { ActivityLogIcon } from "@radix-ui/react-icons";
 
 export default function UserLayout({
   children,
@@ -25,7 +26,11 @@ export default function UserLayout({
             href: "/templates",
             icon: "template",
             title: "Templates",
-            badge: 6,
+          },
+            {
+            href: "/allmaps",
+            icon: "ActivityIcon",
+            title: "Mindmaps",
           },
         ]}
         key={0}
@@ -47,12 +52,16 @@ export default function UserLayout({
               href: "/templates",
               icon: "template",
               title: "Templates",
-              badge: 6,
             },
+            {
+            href: "/allmaps",
+            icon: "ActivityIcon",
+            title: "Mindmaps",
+          },
           ]}
           key={1}
         />
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-0">
           {children}
         </main>
       </div>

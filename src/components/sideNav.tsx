@@ -66,7 +66,11 @@ export default function SideNav({ items }: SidebarNavProps) {
               })}
             </nav>
           </div>
-          <div className="mt-auto p-4">
+          <div className="mt-auto p-4 gap-2 flex flex-col">
+            <Button size="sm" className="w-full" variant="outline">
+              <Link href="/newmap">Create Mindmap</Link>
+            </Button>
+
             <Button size="sm" className="w-full">
               <Link href="/create">Create Roadmap</Link>
             </Button>

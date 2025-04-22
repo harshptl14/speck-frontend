@@ -4,7 +4,6 @@ import Link from "next/link";
 
 import { CircleUser, Menu, Search } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -96,21 +95,10 @@ export default function MainNav(props: NavProps) {
               );
             })}
           </nav>
-          <div className="mt-auto">
-            {/* <Card>
-              <CardHeader>
-                <CardTitle>Create a new roadmap</CardTitle>
-                <CardDescription>
-                  Unlock all features and get unlimited access to our support
-                  team.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button size="sm" className="w-full">
-                  Create
-                </Button>
-              </CardContent>
-            </Card> */}
+          <div className="mt-auto p-4 gap-2 flex flex-col">
+            <Button size="sm" className="w-full" variant="outline">
+              <Link href="/newmap">Create Mindmap</Link>
+            </Button>
             <Button size="sm" className="w-full">
               <Link href="/create">Create Roadmap</Link>
             </Button>
