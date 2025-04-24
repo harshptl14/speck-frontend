@@ -163,8 +163,6 @@ async function getUserFavorites() {
 async function resetRoadmapProgress(roadmapId: string, subtopicId: string) {
   "use server";
 
-  console.log("in reset progress", roadmapId, subtopicId);
-
   const authorization = cookies().get("jwtToken")?.value;
 
   try {

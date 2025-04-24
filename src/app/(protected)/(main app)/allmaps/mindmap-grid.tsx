@@ -14,7 +14,6 @@ export default function MindmapGrid({ mindmaps: initialMindmaps }: { mindmaps: M
 
   useEffect(() => {
     setIsHydrated(true);
-    console.log("Received initialMindmaps:", initialMindmaps);
     setMindmaps(initialMindmaps || []);
   }, [initialMindmaps]);
 
@@ -45,7 +44,7 @@ export default function MindmapGrid({ mindmaps: initialMindmaps }: { mindmaps: M
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {mindmaps.map((mindmap) => (
         <Link href={`/mindmap/${mindmap.id}`} key={mindmap.id} className="group">
-          <Card className="h-full transition-all duration-200 group-hover:shadow-md border-2 group-hover:border-primary/20">
+          <Card className="h-full transition-all hover:shadow-md bg-muted/10 rounded-lg border border-border/30">
             <CardHeader>
               <CardTitle className="line-clamp-2">{mindmap.title || "Untitled"}</CardTitle>
             </CardHeader>

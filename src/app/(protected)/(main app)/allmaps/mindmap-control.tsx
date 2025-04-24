@@ -27,10 +27,7 @@ export default function MindmapControls({ initialMindmaps }: MindmapControlsProp
   useEffect(() => {
     if (!isHydrated) return;
 
-    console.log("Received initialMindmaps:", initialMindmaps);
-    console.log("safeMindmaps:", safeMindmaps);
     const filteredAndSortedMindmaps = filterAndSortMindmaps(safeMindmaps, searchQuery, sortOption, sortDirection);
-    console.log("Filtered and sorted mindmaps:", filteredAndSortedMindmaps);
     const event = new CustomEvent("mindmapsFiltered", {
       detail: { mindmaps: filteredAndSortedMindmaps },
     });
@@ -96,8 +93,6 @@ function filterAndSortMindmaps(
   sortOption: SortOption,
   sortDirection: "asc" | "desc",
 ): Mindmap[] {
-  console.log("Filtering mindmaps:", { mindmaps, searchQuery, sortOption, sortDirection });
-
   let filtered = mindmaps;
   if (searchQuery) {
     const query = searchQuery.toLowerCase();
@@ -128,6 +123,5 @@ function filterAndSortMindmaps(
     }
   });
 
-  console.log("Filtered and sorted result:", sorted);
   return sortDirection === "desc" ? sorted : sorted.reverse();
 }

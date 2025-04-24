@@ -18,15 +18,15 @@ export default function UserLayout({
             title: "Home",
           },
           {
-            href: "/library",
+            href: "/roadmaps",
             icon: "library",
-            title: "Library",
+            title: "Roadmaps",
           },
-          {
-            href: "/templates",
-            icon: "template",
-            title: "Templates",
-          },
+          // {
+          //   href: "/templates",
+          //   icon: "template",
+          //   title: "Templates",
+          // },
             {
             href: "/allmaps",
             icon: "ActivityIcon",
@@ -44,15 +44,15 @@ export default function UserLayout({
               title: "Home",
             },
             {
-              href: "/library",
+              href: "/roadmaps",
               icon: "library",
-              title: "Library",
+              title: "Roadmaps",
             },
-            {
-              href: "/templates",
-              icon: "template",
-              title: "Templates",
-            },
+            // {
+            //   href: "/templates",
+            //   icon: "template",
+            //   title: "Templates",
+            // },
             {
             href: "/allmaps",
             icon: "ActivityIcon",
@@ -61,7 +61,7 @@ export default function UserLayout({
           ]}
           key={1}
         />
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-0">
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
           {children}
         </main>
       </div>

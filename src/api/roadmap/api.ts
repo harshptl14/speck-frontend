@@ -43,8 +43,6 @@ const api = axios.create({
 });
 
 export const getRoadmapOutline = async (id: string, token: string | undefined) => {
-    console.log("id", id);
-    console.log("token", token);
     try {
         const response = await api.get(`/speck/v1/roadmap/getTopicsById/${id}`, {
             headers: {
@@ -52,7 +50,6 @@ export const getRoadmapOutline = async (id: string, token: string | undefined) =
             },
         });
 
-        console.log("response", response.data);
         return response.data;
     } catch (error) {
         console.error("Error getting roadmap:", error);
@@ -61,9 +58,6 @@ export const getRoadmapOutline = async (id: string, token: string | undefined) =
 };
 
 export const updateSubtopicCompletion = async (roadmapId: number, topicId: number, subtopicId: number, newStatus: string, token: string | undefined) => {
-    console.log("topicId", topicId);
-    console.log("subtopicId", subtopicId);
-    console.log("completed", newStatus);
 
     try {
         const response = await api.post('/speck/v1/roadmap/updateSubtopicCompletion', {

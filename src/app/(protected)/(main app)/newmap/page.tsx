@@ -1,47 +1,92 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import type React from "react"
+
+import { useState, useRef, useCallback, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea" // Use specific Textarea component if available/different from input styling
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/components/ui/use-toast"
-import { createMindmap } from "@/api/mindmap/api" // Assuming API path is correct
-import { getClientSideCookie } from "@/lib/utils" // Assuming util path is correct
-import { AlertCircle, Loader2, BrainCircuit, Sparkles, Bot } from "lucide-react" // Adjusted icons
+import { createMindmap } from "@/api/mindmap/api"
+import { getClientSideCookie } from "@/lib/utils"
+import { AlertCircle, Loader2, Sparkles, Zap, Network, ExternalLink, Plus, NetworkIcon, HeartPulse, ActivityIcon } from "lucide-react"
+import confetti from "canvas-confetti"
 
-// Define Model interface for clarity
+// Define Model interface
 interface AIModel {
-  id: string;
-  name: string;
-  description?: string; // Optional description for tooltip or details
-  icon: React.ComponentType<{ className?: string }>;
+  id: string
+  name: string
+  icon: React.ComponentType<{ className?: string }>
 }
 
 // Define available models
 const availableModels: AIModel[] = [
-  { id: "gemini:flash", name: "Gemini 2.0 Flash-lite", icon: Sparkles }, // Using Sparkles for Gemini Flash
-  { id: "groq:llama-3.3", name: "LLaMA 3.3 70B Versatile", icon: Bot }, // Using generic Bot icon for LLaMA
-];
+  {
+    id: "gemini:flash",
+    name: "Gemini 2.0 Flash",
+    icon: Zap,
+  },
+  {
+    id: "groq:llama-3.3",
+    name: "LLaMA 3.3 70B",
+    icon: Network,
+  },
+]
+
+interface MindmapResult {
+  markdown: string
+  id: string
+  title: string
+}
 
 export default function MindmapCreator() {
   const [text, setText] = useState("")
   const [title, setTitle] = useState("")
-  const [selectedModelId, setSelectedModelId] = useState<string>(availableModels[0].id) // Default to first model
+  const [selectedModelId, setSelectedModelId] = useState<string>(availableModels[0].id)
   const [isConverting, setIsConverting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [createdMindmap, setCreatedMindmap] = useState<MindmapResult | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const router = useRouter()
   const { toast } = useToast()
 
-  const charCount = text.length; // Derived state
+  const charCount = text.length
+  const selectedModel = availableModels.find((model) => model.id === selectedModelId) ?? availableModels[0]
 
-  // Find the selected model object
-  const selectedModel = availableModels.find(model => model.id === selectedModelId) ?? availableModels[0];
+  // Confetti effect on successful creation
+  const triggerConfetti = useCallback(() => {
+    const duration = 2000
+    const animationEnd = Date.now() + duration
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 }
+
+    function randomInRange(min: number, max: number) {
+      return Math.random() * (max - min) + min
+    }
+
+    const interval: any = setInterval(() => {
+      const timeLeft = animationEnd - Date.now()
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval)
+      }
+
+      const particleCount = 50 * (timeLeft / duration)
+
+      // Since particles fall down, start a bit higher than random
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+      })
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+      })
+    }, 250)
+  }, [])
 
   // Memoized conversion handler
   const handleConvertToMarkdown = useCallback(async () => {
@@ -63,17 +108,23 @@ export default function MindmapCreator() {
 
       const mindmap = await createMindmap(text, title.trim(), token, selectedModelId)
 
+      // Instead of redirecting, store the result
+      setCreatedMindmap({
+        markdown: mindmap.markdown,
+        id: mindmap.id,
+        title: mindmap.title,
+      })
+
       toast({
         title: "Mindmap Created!",
         description: "Your mindmap is ready to be explored.",
-        variant: "default", // Use 'success' variant if defined in your theme
+        variant: "default",
       })
 
-      // Slight delay for user to read toast before redirect
-      setTimeout(() => {
-        router.push(`/mindmap/${mindmap.id}`)
-      }, 600)
+      // Trigger confetti animation
+      triggerConfetti()
 
+      setIsConverting(false)
     } catch (err: any) {
       console.error("Create mindmap error:", err)
       const errorMessage = err.message || "An unexpected error occurred."
@@ -84,81 +135,54 @@ export default function MindmapCreator() {
         title: "Mindmap Creation Failed",
         description: errorMessage,
       })
-      setIsConverting(false) // Ensure loading state stops on error
+      setIsConverting(false)
     }
-    // No finally block needed here for setIsConverting, handled in error case. Success case navigates away.
-  }, [text, title, selectedModelId, router, toast]) // Dependencies for the callback
+  }, [text, title, selectedModelId, toast, triggerConfetti])
+
+  const handleReset = () => {
+    setCreatedMindmap(null)
+    setText("")
+    setTitle("")
+  }
 
   // Handle keyboard shortcuts
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
-        event.preventDefault()
-        if (!isConverting && text.trim()) { // Only trigger if not already converting and text exists
-           handleConvertToMarkdown()
-        }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + Enter to submit
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && !isConverting && text.trim()) {
+        handleConvertToMarkdown()
       }
     }
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [isConverting, handleConvertToMarkdown, text]) // Add text to dependency to re-bind if needed, though handleConvertToMarkdown covers it
+  }, [handleConvertToMarkdown, isConverting, text])
 
   return (
-    <motion.main
-      className="flex flex-col items-center justify-center p-4 md:p-8 min-h-[calc(100vh-4rem)] bg-gradient-to-br from-background to-muted/30" // Subtle background gradient
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <motion.div
-        className="w-full max-w-3xl" // Slightly wider max-width
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.1, duration: 0.4, ease: "easeOut" }}
-      >
-        <Card className="w-full shadow-xl border-border/40 overflow-hidden">
-          <CardHeader className="p-6 bg-muted/50 border-b border-border/30">
-            <div className="flex items-center justify-between gap-4">
-                 <div className="space-y-1">
-                    <CardTitle className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-                        <BrainCircuit className="h-6 w-6 text-primary" />
-                        Create New Mindmap
-                    </CardTitle>
-                    <CardDescription className="text-muted-foreground">
-                        Transform your notes or ideas into a structured mindmap automatically.
-                    </CardDescription>
-                 </div>
-                 {/* Model Selector - moved to header for prominence */}
-                 <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-sm text-muted-foreground hidden sm:inline">AI Model:</span>
-                     <Select value={selectedModelId} onValueChange={setSelectedModelId} >
-                        <SelectTrigger
-                            className="w-auto sm:w-[240px] text-sm" // Adjusted width
-                            aria-label="Select AI model for mindmap generation"
-                        >
-                            <div className="flex items-center gap-2">
-                                {/* <selectedModel.icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" /> */}
-                                <SelectValue placeholder="Select Model..." />
-                            </div>
-                        </SelectTrigger>
-                        <SelectContent>
-                            {availableModels.map((model) => (
-                            <SelectItem key={model.id} value={model.id}>
-                                <div className="flex items-center gap-2">
-                                    <model.icon className="h-4 w-4" aria-hidden="true" />
-                                    <span>{model.name}</span>
-                                </div>
-                            </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                 </div>
+    <div className="w-full h-full min-h-[calc(100vh-4rem)] relative">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-[length:20px_20px] opacity-20 pointer-events-none" />
+
+      <AnimatePresence mode="wait">
+        {!createdMindmap ? (
+          <motion.div
+            key="creation-form"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-full max-w-3xl mx-auto px-4 py-6"
+          >
+            <div className="mb-6">
+              <div className="flex items-center gap-2.5 mb-1.5">
+                <ActivityIcon className="h-6 w-6 text-primary" />
+                <h1 className="text-2xl font-medium tracking-tight">Mindmap Creator</h1>
+              </div>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-2xl">
+                Transform your ideas into beautifully structured visual mindmaps with our cutting-edge AI technology.
+              </p>
             </div>
 
-          </CardHeader>
-
-          <CardContent className="p-6 space-y-6">
             {/* Error Alert Area */}
             <AnimatePresence>
               {error && (
@@ -167,8 +191,9 @@ export default function MindmapCreator() {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="mb-4"
                   role="alert"
-                  aria-live="polite" // Announce errors to screen readers
+                  aria-live="polite"
                 >
                   <Alert variant="destructive" className="text-sm">
                     <AlertCircle className="h-4 w-4" aria-hidden="true" />
@@ -178,85 +203,151 @@ export default function MindmapCreator() {
               )}
             </AnimatePresence>
 
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="ai-engine" className="text-sm font-medium">
+                  AI Engine:
+                </label>
+                <div className="relative">
+                  <Select value={selectedModelId} onValueChange={setSelectedModelId}>
+                    <SelectTrigger
+                      id="ai-engine"
+                      className="w-[200px] text-sm h-10 border border-border/40 bg-background/80"
+                      aria-label="Select AI model for mindmap generation"
+                    >
+                      <div className="flex items-center gap-2">
+                        <selectedModel.icon className="h-4 w-4 text-primary" aria-hidden="true" />
+                        <SelectValue placeholder="Select Model..." />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent className="min-w-[200px]">
+                      {availableModels.map((model) => (
+                        <SelectItem key={model.id} value={model.id} className="py-1.5">
+                          <div className="flex items-center gap-2">
+                            {/* <model.icon className="h-4 w-4 text-primary flex-shrink-0" aria-hidden="true" /> */}
+                            <span>{model.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
             {/* Title Input */}
-            <div>
+            <div className="mb-4">
               <Input
                 id="mindmap-title"
                 placeholder="Enter mindmap title (optional)"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full text-base" // Slightly larger text
+                className="w-full h-10 text-base border-border/40 bg-background/80"
                 aria-label="Mindmap title (optional)"
               />
             </div>
 
             {/* Content Textarea */}
-            <div className="relative flex flex-col">
-              <Textarea // Use shadcn Textarea if available
+            <div className="relative mb-4">
+              <Textarea
                 ref={textareaRef}
                 id="mindmap-content"
-                className="w-full flex-1 p-4 text-base border rounded-md resize-none min-h-[350px] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-shadow duration-200" // Enhanced focus state
-                placeholder="Paste your notes, article summary, or brainstorm ideas here... The AI will structure it into a mindmap."
+                className="w-full resize-none min-h-[320px] text-base p-4 border-border/40 bg-background/80 focus-visible:ring-1"
+                placeholder="Paste your notes, article summary, or brainstorm ideas here... Our AI will transform it into an interactive mindmap."
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 aria-label="Content to convert into a mindmap"
-                aria-describedby="char-count" // Describe by char count element
-                required // Indicate field is necessary for submission implicitly
+                aria-describedby="char-count"
+                required
               />
               <div
                 id="char-count"
-                className="absolute bottom-3 right-3 text-xs text-muted-foreground bg-background/80 px-1.5 py-0.5 rounded" // Added subtle background for readability
+                className="absolute bottom-3 right-3 text-xs text-muted-foreground bg-background/90 px-2 py-0.5 rounded"
               >
-                {charCount} character{charCount !== 1 ? 's' : ''}
+                {charCount} character{charCount !== 1 ? "s" : ""}
               </div>
             </div>
-          </CardContent>
 
-          <CardFooter className="p-6 border-t border-border/30">
             <Button
               onClick={handleConvertToMarkdown}
-              disabled={isConverting || !text.trim()} // Disable if converting or text is empty
-              className="w-full h-12 text-lg font-medium gap-2 relative overflow-hidden group transition-all duration-300 ease-out hover:shadow-md active:scale-[0.98]" // Larger, bolder button
+              disabled={isConverting || !text.trim()}
+              className="w-full h-11 text-base font-medium relative overflow-hidden bg-neutral-600 hover:bg-neutral-700"
               aria-label={isConverting ? "Generating Mindmap, please wait" : "Generate Mindmap from Text"}
-              aria-live="polite" // Announce changes in button state/text
+              aria-live="polite"
               aria-busy={isConverting}
             >
-              <AnimatePresence mode="wait">
-                {isConverting ? (
-                  <motion.div
-                    key="converting"
-                    className="flex items-center justify-center gap-2 absolute inset-0"
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -10, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-                    <span>Generating...</span>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="create"
-                    className="flex items-center justify-center gap-2 absolute inset-0"
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -10, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {/* Icon visible only when not converting */}
-                    <Sparkles className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
-                    <span>Generate Mindmap</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              {/* Invisible placeholder to maintain button height */}
-              <span className="opacity-0 flex items-center justify-center gap-2">
-                 <Sparkles className="h-5 w-5" /> Generate Mindmap
-              </span>
+              {isConverting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <span>Transforming to Mindmap...</span>
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  <span>Transform to Mindmap</span>
+                </span>
+              )}
             </Button>
-          </CardFooter>
-        </Card>
-      </motion.div>
-    </motion.main>
+
+            <div className="mt-2 text-center text-xs text-muted-foreground">
+              Press <kbd className="px-1 py-0.5 bg-muted rounded border border-border/40 mx-0.5">Ctrl</kbd> +{" "}
+              <kbd className="px-1 py-0.5 bg-muted rounded border border-border/40 mx-0.5">Enter</kbd> to transform
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="success-view"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-full max-w-3xl mx-auto px-4 py-6"
+          >
+            <div className="mb-6">
+              <div className="flex items-center gap-2.5 mb-1.5">
+                <div className="bg-primary/10 p-1.5 rounded-full">
+                  <ActivityIcon className="h-6 w-6 text-primary" />
+                </div>
+                <h1 className="text-2xl font-medium tracking-tight">Mindmap Created</h1>
+              </div>
+              <p className="text-muted-foreground text-sm">Your neural connections have been mapped successfully</p>
+            </div>
+
+            <div className="mb-6 p-6 bg-muted/10 rounded-lg border border-border/30">
+              <h2 className="text-xl font-medium mb-2">{createdMindmap.title}</h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Your mindmap has been created and is ready to explore.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button className="flex-1 gap-2 h-10 bg-neutral-600 hover:bg-neutral-700" asChild>
+                  <a href={`/mindmap/${createdMindmap.id}`}>
+                    <Network className="h-4 w-4" />
+                    View Mindmap
+                    <ExternalLink className="h-3.5 w-3.5 ml-1 opacity-70" />
+                  </a>
+                </Button>
+
+                <Button variant="outline" className="flex-1 gap-2 h-10 border-neutral-300" onClick={handleReset}>
+                  <Plus className="h-4 w-4" />
+                  Create New Mindmap
+                </Button>
+              </div>
+            </div>
+
+            <div className="bg-muted/5 p-4 rounded-lg border border-border/20">
+              <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                Mindmap Preview
+              </h3>
+              <div className="max-h-[150px] overflow-y-auto p-3 bg-background/50 rounded border border-border/10 text-xs font-mono">
+                {createdMindmap.markdown.substring(0, 300)}
+                {createdMindmap.markdown.length > 300 && "..."}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
