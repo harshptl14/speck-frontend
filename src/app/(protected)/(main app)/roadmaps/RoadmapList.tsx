@@ -29,11 +29,6 @@ const getMyRoadmaps = async () => {
 
 const RoadmapList = async () => {
   const myroadmaps = await getMyRoadmaps();
-  // console.log(
-  //   "roadmap length in the roadmap list",
-  //   myroadmaps?.roadmaps?.length,
-  //   typeof myroadmaps?.roadmaps?.length
-  // );
 
   return (
     <div>

@@ -50,7 +50,6 @@ async function getMindmaps() {
       updatedAt: mindmap.updatedAt ? new Date(mindmap.updatedAt).toISOString() : undefined,
     }));
 
-    console.log("Parsed mindmaps:", mindmaps);
 
     if (mindmaps.length === 0) {
       console.warn("No mindmaps found in response");
@@ -75,7 +74,6 @@ export default async function HomePage() {
 
   try {
     mindmaps = await getMindmaps();
-    console.log("Returned mindmaps:", mindmaps);
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to fetch mindmaps";
   }
@@ -96,7 +94,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6 max-w-7xl mx-auto">
+    <div className="h-full w-full bg-background p-0">
       <header className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Your Mindmaps</h1>
         <p className="text-muted-foreground">Organize your thoughts and ideas visually</p>
