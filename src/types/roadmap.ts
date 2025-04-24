@@ -5,11 +5,11 @@ export type Roadmap = {
     markdown?: string
     createdAt: string
     updatedAt: string
-    topics?: Topic[]
+    // topics?: Topic[]
 }
 
-export type Topic = {
-    id: number
-    title: string
-    description?: string
-}
+// export type Topic = {
+//     id: number
+//     title: string
+//     description?: string
+// }
