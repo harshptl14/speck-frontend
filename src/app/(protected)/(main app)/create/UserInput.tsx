@@ -346,7 +346,7 @@ export default function RoadmapCreationComponent() {
                     value={goal}
                     minLength={5}
                     onChange={(e) => setGoal(e.target.value)}
-                    className="w-full resize-none min-h-[320px] text-sm p-4 border-border/40 bg-background/80 focus-visible:ring-1"
+                    className="w-full resize-none min-h-[320px] text-base p-4 border-border/40 bg-background/80 focus-visible:ring-1"
                   />
                   <div
                     id="char-count"

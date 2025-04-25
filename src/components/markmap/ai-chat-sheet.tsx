@@ -502,12 +502,22 @@ export function AIChatSheet({
         {/* Input container - positioned absolute at bottom */}
         <div className="sticky bottom-0 left-0 right-0 bg-background border-t shadow-md z-10 mt-auto">
           <form onSubmit={handleSubmit} className="flex space-x-2 p-4">
-            <Input
+            {/* <Input
               placeholder="Ask for mind map suggestions or refinements..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={isLoading}
               className="flex-1 rounded-lg border-input focus-visible:ring-2 focus-visible:ring-primary h-10"
+              aria-label="AI prompt input"
+            /> */}
+
+            <Input
+              placeholder="Ask for mind map suggestions or refinements..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              disabled={isLoading}
+              className="flex-1 rounded-lg border-input focus-visible:ring-2 focus-visible:ring-primary h-10 text-base"
+              style={{ fontSize: '16px' }} // Ensuring minimum 16px font size
               aria-label="AI prompt input"
             />
             <Button
