@@ -58,7 +58,7 @@ export default function MindmapNav({ className, title }: NavbarProps) {
 
         {/* Mobile layout: Centered breadcrumb */}
         {isMindmapPage && projectName && (
-          <div className="flex-1 mx-2 flex justify-center items-center overflow-hidden md:hidden">
+          <div className="flex-1 mx-2 flex justify-start items-center overflow-hidden md:hidden">
             <ProjectBreadcrumb projectName={projectName} />
           </div>
         )}

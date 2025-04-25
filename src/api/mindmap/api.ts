@@ -105,6 +105,7 @@ export const createMindmap = async (
     token: string,
     modelId: string
 ) => {
+
     const response = await fetch(`${API_BASE_URL}/`, {
         method: "POST",
         headers: {

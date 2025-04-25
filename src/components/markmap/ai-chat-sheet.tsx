@@ -1,3 +1,4 @@
+// Fixed AIChatSheet.jsx with mobile scrolling fixes
 "use client";
 
 import type React from "react";
@@ -34,15 +35,13 @@ import {
 import { useChatContext } from "@/context/chatContext";
 import { Sparkles, Bot } from "lucide-react" // Adjusted icons
 
-
-
 interface AIChatSheetProps {
   onSubmit: (prompt: string, selectedModelId: string) => Promise<string>;
   markdown: string;
   selectedModel: string;
   mindmapId: string;
   token: string;
-  updateMarkdown?: (newMarkdown: string) => void; // Add the callback to props
+  updateMarkdown?: (newMarkdown: string) => void;
 }
 
 interface Message {
@@ -57,14 +56,14 @@ interface Message {
 interface AIModel {
   id: string;
   name: string;
-  description?: string; // Optional description for tooltip or details
+  description?: string;
   icon: React.ComponentType<{ className?: string }>;
 }
 
 // Define available models
 const availableModels: AIModel[] = [
-  { id: "gemini:flash", name: "Gemini 2.0 Flash-lite", icon: Sparkles }, // Using Sparkles for Gemini Flash
-  { id: "groq:llama-3.3", name: "LLaMA 3.3 70B Versatile", icon: Bot }, // Using generic Bot icon for LLaMA
+  { id: "gemini:flash", name: "Gemini 2.0 Flash-lite", icon: Sparkles },
+  { id: "groq:llama-3.3", name: "LLaMA 3.3 70B Versatile", icon: Bot },
 ];
 
 export function AIChatSheet({
@@ -78,8 +77,7 @@ export function AIChatSheet({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  // const [selectedModel, setSelectedModel] = useState(initialModel);
-  const [selectedModelId, setSelectedModelId] = useState<string>(availableModels[0].id) // Default to first model
+  const [selectedModelId, setSelectedModelId] = useState<string>(availableModels[0].id);
   const [error, setError] = useState<string | null>(null);
   const [previewMarkdown, setPreviewMarkdown] = useState<string | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -94,38 +92,36 @@ export function AIChatSheet({
   const { getChat, setChat } = useChatContext();
   const { syncMessages } = useChatContext();
 
-
   // Find the selected model object
   const selectedModel = availableModels.find(model => model.id === selectedModelId) ?? availableModels[0];
 
+  // Fetch chat history on mount
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const cachedMessages = getChat(mindmapId);
+      if (cachedMessages) {
+        setMessages(cachedMessages);
+        return;
+      }
 
-// Fetch chat history on mount
-useEffect(() => {
-  const fetchMessages = async () => {
-    const cachedMessages = getChat(mindmapId);
-    if (cachedMessages) {
-      setMessages(cachedMessages);
-      return;
-    }
+      try {
+        const fetchedMessages = await getAIChatMessages(mindmapId, token);
+        const mappedMessages = fetchedMessages.map((msg: any) => ({
+          id: msg.id.toString(),
+          role: msg.role,
+          content: msg.content,
+          ...parseStructuredContent(msg.content),
+        }));
 
-    try {
-      const fetchedMessages = await getAIChatMessages(mindmapId, token);
-      const mappedMessages = fetchedMessages.map((msg: any) => ({
-        id: msg.id.toString(),
-        role: msg.role,
-        content: msg.content,
-        ...parseStructuredContent(msg.content),
-      }));
+        setMessages(mappedMessages);
+        setChat(mindmapId, mappedMessages);
+      } catch (err) {
+        setError("Failed to load chat history. Please try again.");
+      }
+    };
 
-      setMessages(mappedMessages);
-      setChat(mindmapId, mappedMessages);
-    } catch (err) {
-      setError("Failed to load chat history. Please try again.");
-    }
-  };
-
-  fetchMessages();
-}, [mindmapId, token]);
+    fetchMessages();
+  }, [mindmapId, token, getChat, setChat]);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -332,65 +328,63 @@ useEffect(() => {
     [handlePreviewMarkdown, initiateApplyMarkdown]
   );
 
-const addMessage = (message: Message) => {
-  setMessages((prev) => {
-    const updated = [...prev, message];
-    syncMessages(mindmapId, () => updated);
-    return updated;
-  });
-};
+  const addMessage = (message: Message) => {
+    setMessages((prev) => {
+      const updated = [...prev, message];
+      syncMessages(mindmapId, () => updated);
+      return updated;
+    });
+  };
 
-  
- const handleSubmit = useCallback(
-  async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!input.trim() || isLoading) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input,
-    };
-
-    addMessage(userMessage);
-    setInput("");
-    setIsLoading(true);
-    setError(null);
-    setPreviewMarkdown(null);
-
-    try {
-      await saveAIChatMessage(mindmapId, "user", input, token);
-
-      const response = await onSubmit(input, selectedModelId);
-      const parsedContent = parseStructuredContent(response);
-
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: response,
-        ...parsedContent,
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        role: "user",
+        content: input,
       };
 
-      addMessage(assistantMessage);
-      await saveAIChatMessage(mindmapId, "assistant", response, token);
-      scrollToBottom();
-    } catch (error) {
-      setError("Failed to get a response. Please try again.");
-      const errorMessage: Message = {
-        id: (Date.now() + 2).toString(),
-        role: "assistant",
-        content: "Sorry, I encountered an error processing your request.",
-      };
-      addMessage(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  },
-  [input, isLoading, mindmapId, token, onSubmit, selectedModelId, parseStructuredContent, scrollToBottom]
-);
+      addMessage(userMessage);
+      setInput("");
+      setIsLoading(true);
+      setError(null);
+      setPreviewMarkdown(null);
 
+      try {
+        await saveAIChatMessage(mindmapId, "user", input, token);
 
-const handleApplyMarkdown = useCallback(async () => {
+        const response = await onSubmit(input, selectedModelId);
+        const parsedContent = parseStructuredContent(response);
+
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: response,
+          ...parsedContent,
+        };
+
+        addMessage(assistantMessage);
+        await saveAIChatMessage(mindmapId, "assistant", response, token);
+        scrollToBottom();
+      } catch (error) {
+        setError("Failed to get a response. Please try again.");
+        const errorMessage: Message = {
+          id: (Date.now() + 2).toString(),
+          role: "assistant",
+          content: "Sorry, I encountered an error processing your request.",
+        };
+        addMessage(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [input, isLoading, mindmapId, token, onSubmit, selectedModelId, parseStructuredContent, scrollToBottom]
+  );
+
+  const handleApplyMarkdown = useCallback(async () => {
     if (!pendingMarkdown) return;
 
     try {
@@ -430,27 +424,26 @@ const handleApplyMarkdown = useCallback(async () => {
         <div className="text-muted-foreground">
           <span className="font-normal">AI Model</span>
         </div>
-       <Select value={selectedModelId} onValueChange={setSelectedModelId} >
-                               <SelectTrigger
-                                   className="w-auto sm:w-[240px] text-sm" // Adjusted width
-                                   aria-label="Select AI model for mindmap generation"
-                               >
-                                   <div className="flex items-center gap-2">
-                                       {/* <selectedModel.icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" /> */}
-                                       <SelectValue placeholder="Select Model..." />
-                                   </div>
-                               </SelectTrigger>
-                               <SelectContent>
-                                   {availableModels.map((model) => (
-                                   <SelectItem key={model.id} value={model.id}>
-                                       <div className="flex items-center gap-2">
-                                           <model.icon className="h-4 w-4" aria-hidden="true" />
-                                           <span>{model.name}</span>
-                                       </div>
-                                   </SelectItem>
-                                   ))}
-                               </SelectContent>
-                           </Select>
+        <Select value={selectedModelId} onValueChange={setSelectedModelId}>
+          <SelectTrigger
+            className="w-auto sm:w-[240px] text-sm"
+            aria-label="Select AI model for mindmap generation"
+          >
+            <div className="flex items-center gap-2">
+              <SelectValue placeholder="Select Model..." />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            {availableModels.map((model) => (
+              <SelectItem key={model.id} value={model.id}>
+                <div className="flex items-center gap-2">
+                  <model.icon className="h-4 w-4" aria-hidden="true" />
+                  <span>{model.name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {error && (
@@ -459,11 +452,13 @@ const handleApplyMarkdown = useCallback(async () => {
         </Alert>
       )}
 
-      <div className="flex flex-col h-full">
+      {/* Main container - key fix here with flex structure and heights */}
+      <div className="flex flex-col h-full relative">
+        {/* Messages container - set absolute positioning and inset properties for mobile */}
         <div
           ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto px-6 pb-24"
-          style={{ overscrollBehavior: "contain", minHeight: "200px" }}
+          className="flex-1 overflow-y-auto px-6 absolute inset-0 top-0 bottom-20 w-full"
+          style={{ touchAction: "pan-y" }}
           aria-live="polite"
         >
           <div className="py-4 space-y-6">
@@ -504,7 +499,8 @@ const handleApplyMarkdown = useCallback(async () => {
           </div>
         </div>
 
-        <div className="sticky bottom-0 left-0 right-0 bg-background border-t shadow-md z-10">
+        {/* Input container - positioned absolute at bottom */}
+        <div className="sticky bottom-0 left-0 right-0 bg-background border-t shadow-md z-10 mt-auto">
           <form onSubmit={handleSubmit} className="flex space-x-2 p-4">
             <Input
               placeholder="Ask for mind map suggestions or refinements..."
@@ -563,7 +559,7 @@ const handleApplyMarkdown = useCallback(async () => {
         </DialogContent>
       </Dialog>
 
-<AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>

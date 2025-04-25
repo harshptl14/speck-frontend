@@ -112,7 +112,7 @@ export default function MindmapCreator() {
       setCreatedMindmap({
         markdown: mindmap.markdown,
         id: mindmap.id,
-        title: mindmap.title,
+        title: title || mindmap.title,
       })
 
       toast({

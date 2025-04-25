@@ -288,7 +288,7 @@ export function MarkdownPlayground({
                 <span>Chat or Edit with AI</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side={isMobile ? "bottom" : "right"} className="w-full sm:w-[50%] sm:max-w-none">
+            <SheetContent side={isMobile ? "bottom" : "right"} className="w-full h-full sm:w-[50%] sm:max-w-none p-0 m-0 overflow-y-auto">
               <AIChatSheet
               onSubmit={handleAIPrompt}
               markdown={markdown}
