@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import SideNav from "@/components/sideNav";
 import MainNav from "@/components/mainNav";
+import { ActivityLogIcon } from "@radix-ui/react-icons";
 
 export default function UserLayout({
   children,
@@ -17,15 +18,19 @@ export default function UserLayout({
             title: "Home",
           },
           {
-            href: "/library",
+            href: "/roadmaps",
             icon: "library",
-            title: "Library",
+            title: "Roadmaps",
           },
-          {
-            href: "/templates",
-            icon: "template",
-            title: "Templates",
-            badge: 6,
+          // {
+          //   href: "/templates",
+          //   icon: "template",
+          //   title: "Templates",
+          // },
+            {
+            href: "/allmaps",
+            icon: "ActivityIcon",
+            title: "Mindmaps",
           },
         ]}
         key={0}
@@ -39,16 +44,20 @@ export default function UserLayout({
               title: "Home",
             },
             {
-              href: "/library",
+              href: "/roadmaps",
               icon: "library",
-              title: "Library",
+              title: "Roadmaps",
             },
+            // {
+            //   href: "/templates",
+            //   icon: "template",
+            //   title: "Templates",
+            // },
             {
-              href: "/templates",
-              icon: "template",
-              title: "Templates",
-              badge: 6,
-            },
+            href: "/allmaps",
+            icon: "ActivityIcon",
+            title: "Mindmaps",
+          },
           ]}
           key={1}
         />

@@ -91,8 +91,6 @@ const getMyRoadmap = async (id: string) => {
       }
     );
 
-    console.log("response in the getMyRoadmap fun:", response);
-
     return response.json();
   } catch (error) {
     console.error("Error getting roadmap:", error);
@@ -105,11 +103,7 @@ export default async function RoadmapPage({
 }: {
   params: { id: string };
 }) {
-  console.log("params", params);
-
   const myroadmap = await getMyRoadmap(params.id);
-  console.log("roadmap", myroadmap);
-  console.log("roadmap Desc", myroadmap?.roadmap?.description);
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -121,15 +115,19 @@ export default async function RoadmapPage({
             title: "Home",
           },
           {
-            href: "/library",
+            href: "/roadmaps",
             icon: "library",
-            title: "Library",
+            title: "Roadmaps",
           },
-          {
-            href: "/templates",
-            icon: "template",
-            title: "Templates",
-            badge: 6,
+          // {
+          //   href: "/templates",
+          //   icon: "template",
+          //   title: "Templates",
+          // },
+            {
+            href: "/allmaps",
+            icon: "ActivityIcon",
+            title: "Mindmaps",
           },
         ]}
         key={0}
@@ -137,28 +135,32 @@ export default async function RoadmapPage({
       <div className="flex flex-col">
         <MainNav
           items={[
+          {
+            href: "/home",
+            icon: "home",
+            title: "Home",
+          },
+          {
+            href: "/roadmaps",
+            icon: "library",
+            title: "Roadmaps",
+          },
+          // {
+          //   href: "/templates",
+          //   icon: "template",
+          //   title: "Templates",
+          // },
             {
-              href: "/home",
-              icon: "home",
-              title: "Home",
-            },
-            {
-              href: "/library",
-              icon: "library",
-              title: "Library",
-            },
-            {
-              href: "/templates",
-              icon: "template",
-              title: "Templates",
-              badge: 6,
-            },
+            href: "/allmaps",
+            icon: "ActivityIcon",
+            title: "Mindmaps",
+          },
           ]}
           key={1}
           breadcrumbs={[
             {
-              href: "/library",
-              title: "Library",
+              href: "/roadmaps",
+              title: "Roadmaps",
             },
             {
               href: ``,

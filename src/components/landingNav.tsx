@@ -26,10 +26,8 @@ const LandingNav = () => {
     window.addEventListener("scroll", () => {
       if (myfunction()) {
         setInView(true);
-        console.log("Element is visible in viewport");
       } else {
         setInView(false);
-        console.log("Element is not visible in viewport");
       }
     });
 
@@ -37,10 +35,8 @@ const LandingNav = () => {
       window.removeEventListener("scroll", () => {
         if (myfunction()) {
           setInView(true);
-          console.log("Element is visible in viewport");
         } else {
           setInView(false);
-          console.log("Element is not visible in viewport");
         }
       });
     };

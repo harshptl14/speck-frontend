@@ -250,10 +250,10 @@ export function CombinedNav({
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink
-                    href="/library"
+                    href="/roadmaps"
                     className="text-muted-foreground hidden md:block"
                   >
-                    Library
+                    Roadmaps
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
