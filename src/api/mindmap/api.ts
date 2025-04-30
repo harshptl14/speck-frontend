@@ -121,7 +121,8 @@ export const createMindmap = async (
 
     const data = await response.json();
     if (!response.ok) {
-        const errorMessage = data?.error || "Failed to create mindmap.";
+        // console.error("Error creating mindmap:", data);
+        const errorMessage = data?.message || "Failed to create mindmap.";
         throw new Error(errorMessage);
     }
 
