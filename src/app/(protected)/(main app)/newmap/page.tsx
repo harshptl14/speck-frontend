@@ -367,7 +367,6 @@
 //   )
 // }
 
-
 "use client"
 
 import type React from "react"
@@ -383,6 +382,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { createMindmap } from "@/api/mindmap/api"
 import { getClientSideCookie } from "@/lib/utils"
 import { AlertCircle, Loader2, Sparkles, Zap, Network, ExternalLink, Plus, ActivityIcon } from "lucide-react"
+
 import confetti from "canvas-confetti"
 
 // Define Model interface
@@ -566,7 +566,6 @@ export default function MindmapCreator() {
       })
     }
   }
-
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
